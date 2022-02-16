@@ -1,6 +1,3 @@
-# semver-action
-GitHub Action to calculate the next release version based conventional commits from latest tag.
-
 # Semver Conventional Commits - Github Action
 
 This GitHub Action automatically determinate the next release version to use based on all the [Conventional Commits](https://www.conventionalcommits.org) since the latest tag.
