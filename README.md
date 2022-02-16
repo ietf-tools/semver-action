@@ -38,7 +38,7 @@ jobs:
 
 ## Inputs
 * `token`: Your GitHub token (e.g. `${{ github.token }}`) - **REQUIRED**
-* `tag`: The latest tag which triggered the job. (e.g. `${{ github.ref_name }}`) - **Optional**
+* `branch`: The branch to use when fetching list of commits to compare against. (e.g. `main`) - **Optional**
 
 ## Outputs
 * `next`: Next version number in format v0.0.0
