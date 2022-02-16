@@ -1,0 +1,22 @@
+name: 'Semver Conventional Commits'
+description: 'Calculate the next release version based on conventional commits since latest tag'
+author: Nicolas Giard
+inputs:
+  token:
+    description: GitHub Token
+    required: true
+  branch:
+    description: The branch to use when fetching list of commits to compare against
+    required: false
+    default: main
+outputs:
+  next:
+    description: Next version number in format v0.0.0
+  nextStrict:
+    description: Next version number without the v prefix
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+branding:
+  icon: fast-forward
+  color: red
