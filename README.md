@@ -1,4 +1,15 @@
-# Semver Conventional Commits - Github Action
+<div align="center">
+    
+<img src="https://raw.githubusercontent.com/ietf-tools/common/main/assets/logos/semver-action.svg" alt="Semver Github Action" height="125" />
+    
+[![Release](https://img.shields.io/github/release/ietf-tools/semver-action.svg?style=flat&maxAge=600)](https://github.com/ietf-tools/semver-action/releases)
+[![License](https://img.shields.io/github/license/ietf-tools/semver-action)](https://github.com/ietf-tools/semver-action/blob/main/LICENSE)
+    
+##### Semver Conventional Commits - Github Action
+    
+</div>
+
+---
 
 This GitHub Action automatically determinate the next release version to use based on all the [Conventional Commits](https://www.conventionalcommits.org) since the latest tag.
 
