@@ -5,7 +5,7 @@ const cc = require('@conventional-commits/parser')
 const semver = require('semver')
 
 const bumpTypes = {
-  major: [],
+  major: ['break', 'breaking', 'breaking changes'],
   minor: ['feat', 'feature'],
   patch: ['fix', 'bugfix', 'perf', 'refactor', 'test', 'tests']
 }
@@ -120,8 +120,10 @@ async function main () {
 
   const next = semver.inc(latestTag.name, bump)
 
+  core.info(`Current version is ${latestTag}`)
   core.info(`Next version is v${next}`)
 
+  core.exportVariable('current', latestTag)
   core.exportVariable('next', `v${next}`)
   core.exportVariable('nextStrict', next)
 }
