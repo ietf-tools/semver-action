@@ -10,6 +10,8 @@ inputs:
     required: false
     default: main
 outputs:
+  current:
+    description: Current version number
   next:
     description: Next version number in format v0.0.0
   nextStrict:
