@@ -76,27 +76,27 @@ async function main () {
 
   // PARSE COMMITS
 
-  let majorChanges = 0
-  let minorChanges = 0
-  let patchChanges = 0
+  let majorChanges = []
+  let minorChanges = []
+  let patchChanges = []
   for (const commit of commits) {
     try {
       const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
       if (bumpTypes.major.includes(cAst.type)) {
-        majorChanges++
+        majorChanges.push(commit.commit.message)
         core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`)
       } else if (bumpTypes.minor.includes(cAst.type)) {
-        minorChanges++
+        minorChanges.push(commit.commit.message)
         core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`)
       } else if (bumpTypes.patchAll || bumpTypes.patch.includes(cAst.type)) {
-        patchChanges++
+        patchChanges.push(commit.commit.message)
         core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`)
       } else {
         core.info(`[SKIP] Commit ${commit.sha} of type ${cAst.type} will not cause any version bump.`)
       }
       for (const note of cAst.notes) {
         if (note.title === 'BREAKING CHANGE') {
-          majorChanges++
+          majorChanges.push(commit.commit.message)
           core.info(`[MAJOR] Commit ${commit.sha} has a BREAKING CHANGE mention, causing a major version bump.`)
         }
       }
@@ -106,11 +106,11 @@ async function main () {
   }
 
   let bump = null
-  if (majorChanges > 0) {
+  if (majorChanges.length > 0) {
     bump = 'major'
-  } else if (minorChanges > 0) {
+  } else if (minorChanges.length > 0) {
     bump = 'minor'
-  } else if (patchChanges > 0) {
+  } else if (patchChanges.length > 0) {
     bump = 'patch'
   } else {
     return core.setFailed('No commit resulted in a version bump since last release!')
