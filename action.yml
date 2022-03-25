@@ -9,19 +9,19 @@ inputs:
     description: The branch to use when fetching list of commits to compare against
     required: false
     default: main
-  major-list:
+  majorList:
     description: Comma separated commit prefixes, used to bump Major version
     required: false
-    default:
-  minor-list:
+    default: ''
+  minorList:
     description: Comma separated commit prefixes, used to bump Minor version
     required: false
     default: feat, feature
-  patch-list:
+  patchList:
     description: Comma separated commit prefixes, used to bump Patch version
     required: false
     default: fix, bugfix, perf, refactor, test, tests
-  patch-all:
+  patchAll:
     description: If set to true, will ignore patch-list and count any commit as a Patch
     required: false
     default: false

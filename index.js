@@ -12,10 +12,10 @@ async function main () {
   const repo = github.context.repo.repo
 
   const bumpTypes = {
-    major: core.getInput('major-list').split(','),
-    minor: core.getInput('minor-list').split(','),
-    patch: core.getInput('patch-list').split(','),
-    patchAll: (core.getInput('patch-all') === true || core.getInput('patch-all') === 'true'),
+    major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
+    minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
+    patch: core.getInput('patchList').split(',').map(p => p.trim()).filter(p => p),
+    patchAll: (core.getInput('patchAll') === true || core.getInput('patch-all') === 'true'),
   }
 
   // GET LATEST + PREVIOUS TAGS
@@ -76,9 +76,9 @@ async function main () {
 
   // PARSE COMMITS
 
-  let majorChanges = []
-  let minorChanges = []
-  let patchChanges = []
+  const majorChanges = []
+  const minorChanges = []
+  const patchChanges = []
   for (const commit of commits) {
     try {
       const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))

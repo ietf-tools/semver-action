@@ -36,9 +36,6 @@ jobs:
         with:
           token: ${{ github.token }}
           branch: main
-          major-list: break
-          minor-list: feat, feature
-          patch-list: fix, bugfix, perf, refactor, test, tests
 
       - name: Create Release
         uses: ncipollo/release-action@v1
@@ -46,7 +43,6 @@ jobs:
           allowUpdates: true
           draft: false
           name: ${{ steps.semver.outputs.next }}
-          tag: ${{ steps.semver.outputs.next }}
           body: Changelog Contents
           token: ${{ github.token }}
 ```
@@ -54,10 +50,10 @@ jobs:
 ## Inputs
 * `token`: Your GitHub token (e.g. `${{ github.token }}`) - **REQUIRED**
 * `branch`: The branch to use when fetching list of commits to compare against. (e.g. `main`) - **Optional**
-* `major-list`: Comma separated commit prefixes, used to bump Major version. Defaults to empty - **Optional**
-* `minor-list`: Comma separated commit prefixes, used to bump Minor version. Defaults to (`feat, feature`) - **Optional**
-* `patch-list`: Comma separated commit prefixes, used to bump Patch version. Defaults to (`fix, bugfix, perf, refactor, test, tests`) - **Optional**
-* `patch-all`: If set to `true`, will ignore `patch-list` and always count commits as a Patches. Defaults to `false` - **Optional**
+* `majorList`: Comma separated commit prefixes, used to bump Major version. Defaults to empty. A `BREAKING CHANGE` note in a commit message will still cause a major bump. - **Optional**
+* `minorList`: Comma separated commit prefixes, used to bump Minor version. Defaults to (`feat, feature`) - **Optional**
+* `patchList`: Comma separated commit prefixes, used to bump Patch version. Defaults to (`fix, bugfix, perf, refactor, test, tests`) - **Optional**
+* `patchAll`: If set to `true`, will ignore `patch-list` and always count commits as a Patches. Defaults to `false` - **Optional**
 
 ## Outputs
 * `current`: Current version number / Latest tag
