@@ -15,7 +15,7 @@ async function main () {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
     minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
     patch: core.getInput('patchList').split(',').map(p => p.trim()).filter(p => p),
-    patchAll: (core.getInput('patchAll') === true || core.getInput('patch-all') === 'true'),
+    patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true'),
   }
 
   // GET LATEST + PREVIOUS TAGS
