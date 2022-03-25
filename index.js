@@ -4,18 +4,19 @@ const _ = require('lodash')
 const cc = require('@conventional-commits/parser')
 const semver = require('semver')
 
-const bumpTypes = {
-  major: ['break', 'breaking', 'breaking changes'],
-  minor: ['feat', 'feature'],
-  patch: ['fix', 'bugfix', 'perf', 'refactor', 'test', 'tests']
-}
-
 async function main () {
   const token = core.getInput('token')
   const branch = core.getInput('branch')
   const gh = github.getOctokit(token)
   const owner = github.context.repo.owner
   const repo = github.context.repo.repo
+
+  const bumpTypes = {
+    major: core.getInput('major-list').split(','),
+    minor: core.getInput('minor-list').split(','),
+    patch: core.getInput('patch-list').split(','),
+    patchAll: (core.getInput('patch-all') === true || core.getInput('patch-all') === 'true'),
+  }
 
   // GET LATEST + PREVIOUS TAGS
 
@@ -87,7 +88,7 @@ async function main () {
       } else if (bumpTypes.minor.includes(cAst.type)) {
         minorChanges++
         core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`)
-      } else if (bumpTypes.patch.includes(cAst.type)) {
+      } else if (bumpTypes.patchAll || bumpTypes.patch.includes(cAst.type)) {
         patchChanges++
         core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`)
       } else {
