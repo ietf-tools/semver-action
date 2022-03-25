@@ -124,7 +124,7 @@ async function main () {
   core.info(`Current version is ${latestTag.name}`)
   core.info(`Next version is v${next}`)
 
-  core.exportVariable('current', latestTag)
+  core.exportVariable('current', latestTag.name)
   core.exportVariable('next', `v${next}`)
   core.exportVariable('nextStrict', next)
 }
