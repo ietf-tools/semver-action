@@ -120,7 +120,7 @@ async function main () {
 
   const next = semver.inc(latestTag.name, bump)
 
-  core.info(`Current version is ${latestTag}`)
+  core.info(`Current version is ${latestTag.name}`)
   core.info(`Next version is v${next}`)
 
   core.exportVariable('current', latestTag)
