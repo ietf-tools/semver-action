@@ -50,10 +50,10 @@ jobs:
 ## Inputs
 * `token`: Your GitHub token (e.g. `${{ github.token }}`) - **REQUIRED**
 * `branch`: The branch to use when fetching list of commits to compare against. (e.g. `main`) - **Optional**
-* `majorList`: Comma separated commit prefixes, used to bump Major version. Defaults to empty. A `BREAKING CHANGE` note in a commit message will still cause a major bump. - **Optional**
+* `majorList`: Comma separated commit prefixes, used to bump Major version. Defaults to empty. *A `BREAKING CHANGE` note in a commit message will still cause a major bump.* - **Optional**
 * `minorList`: Comma separated commit prefixes, used to bump Minor version. Defaults to (`feat, feature`) - **Optional**
 * `patchList`: Comma separated commit prefixes, used to bump Patch version. Defaults to (`fix, bugfix, perf, refactor, test, tests`) - **Optional**
-* `patchAll`: If set to `true`, will ignore `patch-list` and always count commits as a Patches. Defaults to `false` - **Optional**
+* `patchAll`: If set to `true`, will ignore `patchList` and always count commits as a Patch. Defaults to `false` - **Optional**
 
 ## Outputs
 * `current`: Current version number / Latest tag
