@@ -13,6 +13,10 @@
 
 This GitHub Action automatically determinate the next release version to use based on all the [Conventional Commits](https://www.conventionalcommits.org) since the latest tag.
 
+- [Example Workflow](#example-workflow)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
+
 ## Example workflow
 ``` yaml
 name: Deploy
@@ -48,18 +52,24 @@ jobs:
 ```
 
 ## Inputs
-* `token`: Your GitHub token (e.g. `${{ github.token }}`) - **REQUIRED**
-* `branch`: The branch to use when fetching list of commits to compare against. (e.g. `main`) - **Optional**
-* `majorList`: Comma separated commit prefixes, used to bump Major version. Defaults to empty. *A `BREAKING CHANGE` note in a commit message will still cause a major bump.* - **Optional**
-* `minorList`: Comma separated commit prefixes, used to bump Minor version. Defaults to (`feat, feature`) - **Optional**
-* `patchList`: Comma separated commit prefixes, used to bump Patch version. Defaults to (`fix, bugfix, perf, refactor, test, tests`) - **Optional**
-* `patchAll`: If set to `true`, will ignore `patchList` and always count commits as a Patch. Defaults to `false` - **Optional**
+
+| Field       | Description                                                                                                                                |      Required      | Default                                    |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|--------------------------------------------|
+| `token`     | Your GitHub token. (e.g. `${{ github.token }}`)                                                                                            | :white_check_mark: |                                            |
+| `branch`    | The branch to use when fetching list of commits to compare against. (e.g. `main`)                                                          |         :x:        | `main`                                     |
+| `majorList` | Comma separated commit prefixes, used to bump Major version. <br>*A `BREAKING CHANGE` note in a commit message will still cause a major bump.* |         :x:        |                                            |
+| `minorList` | Comma separated commit prefixes, used to bump Minor version.                                                                               |         :x:        | `feat, feature`                            |
+| `patchList` | Comma separated commit prefixes, used to bump Patch version.                                                                               |         :x:        | `fix, bugfix, perf, refactor, test, tests` |
+| `patchAll`  | If set to `true`, will ignore `patchList` and always count commits as a Patch.                                                             |         :x:        | `false`                                    |
 
 ## Outputs
-* `current`: Current version number / Latest tag
-* `next`: Next version number in format v0.0.0
-* `nextStrict`: Next version number without the v prefix
 
-## Important
+| Field        | Description                                 | Example Value |
+|--------------|---------------------------------------------|---------------|
+| `current`    | Current version number / latest tag.        | `v1.1.9`      |
+| `next`       | Next version number in format `v0.0.0`      | `v1.2.0`      |
+| `nextStrict` | Next version number without the `v` prefix. | `1.2.0`       |
+
+## :warning: Important :warning:
 
 You must already have an existing tag in your repository. The job will exit with an error if it can't find the latest tag to compare against!
