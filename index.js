@@ -4,18 +4,19 @@ const _ = require('lodash')
 const cc = require('@conventional-commits/parser')
 const semver = require('semver')
 
-const bumpTypes = {
-  major: [],
-  minor: ['feat', 'feature'],
-  patch: ['fix', 'bugfix', 'perf', 'refactor', 'test', 'tests']
-}
-
 async function main () {
   const token = core.getInput('token')
   const branch = core.getInput('branch')
   const gh = github.getOctokit(token)
   const owner = github.context.repo.owner
   const repo = github.context.repo.repo
+
+  const bumpTypes = {
+    major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
+    minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
+    patch: core.getInput('patchList').split(',').map(p => p.trim()).filter(p => p),
+    patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true'),
+  }
 
   // GET LATEST + PREVIOUS TAGS
 
@@ -75,27 +76,27 @@ async function main () {
 
   // PARSE COMMITS
 
-  let majorChanges = 0
-  let minorChanges = 0
-  let patchChanges = 0
+  const majorChanges = []
+  const minorChanges = []
+  const patchChanges = []
   for (const commit of commits) {
     try {
       const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
       if (bumpTypes.major.includes(cAst.type)) {
-        majorChanges++
+        majorChanges.push(commit.commit.message)
         core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`)
       } else if (bumpTypes.minor.includes(cAst.type)) {
-        minorChanges++
+        minorChanges.push(commit.commit.message)
         core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`)
-      } else if (bumpTypes.patch.includes(cAst.type)) {
-        patchChanges++
+      } else if (bumpTypes.patchAll || bumpTypes.patch.includes(cAst.type)) {
+        patchChanges.push(commit.commit.message)
         core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`)
       } else {
         core.info(`[SKIP] Commit ${commit.sha} of type ${cAst.type} will not cause any version bump.`)
       }
       for (const note of cAst.notes) {
         if (note.title === 'BREAKING CHANGE') {
-          majorChanges++
+          majorChanges.push(commit.commit.message)
           core.info(`[MAJOR] Commit ${commit.sha} has a BREAKING CHANGE mention, causing a major version bump.`)
         }
       }
@@ -105,11 +106,11 @@ async function main () {
   }
 
   let bump = null
-  if (majorChanges > 0) {
+  if (majorChanges.length > 0) {
     bump = 'major'
-  } else if (minorChanges > 0) {
+  } else if (minorChanges.length > 0) {
     bump = 'minor'
-  } else if (patchChanges > 0) {
+  } else if (patchChanges.length > 0) {
     bump = 'patch'
   } else {
     return core.setFailed('No commit resulted in a version bump since last release!')
@@ -120,8 +121,10 @@ async function main () {
 
   const next = semver.inc(latestTag.name, bump)
 
+  core.info(`Current version is ${latestTag.name}`)
   core.info(`Next version is v${next}`)
 
+  core.exportVariable('current', latestTag.name)
   core.exportVariable('next', `v${next}`)
   core.exportVariable('nextStrict', next)
 }

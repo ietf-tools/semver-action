@@ -1,12 +1,12 @@
 <div align="center">
-    
+
 <img src="https://raw.githubusercontent.com/ietf-tools/common/main/assets/logos/semver-action.svg" alt="Semver Github Action" height="125" />
-    
+
 [![Release](https://img.shields.io/github/release/ietf-tools/semver-action.svg?style=flat&maxAge=600)](https://github.com/ietf-tools/semver-action/releases)
 [![License](https://img.shields.io/github/license/ietf-tools/semver-action)](https://github.com/ietf-tools/semver-action/blob/main/LICENSE)
-    
+
 ##### Semver Conventional Commits - Github Action
-    
+
 </div>
 
 ---
@@ -50,8 +50,13 @@ jobs:
 ## Inputs
 * `token`: Your GitHub token (e.g. `${{ github.token }}`) - **REQUIRED**
 * `branch`: The branch to use when fetching list of commits to compare against. (e.g. `main`) - **Optional**
+* `majorList`: Comma separated commit prefixes, used to bump Major version. Defaults to empty. *A `BREAKING CHANGE` note in a commit message will still cause a major bump.* - **Optional**
+* `minorList`: Comma separated commit prefixes, used to bump Minor version. Defaults to (`feat, feature`) - **Optional**
+* `patchList`: Comma separated commit prefixes, used to bump Patch version. Defaults to (`fix, bugfix, perf, refactor, test, tests`) - **Optional**
+* `patchAll`: If set to `true`, will ignore `patchList` and always count commits as a Patch. Defaults to `false` - **Optional**
 
 ## Outputs
+* `current`: Current version number / Latest tag
 * `next`: Next version number in format v0.0.0
 * `nextStrict`: Next version number without the v prefix
 
