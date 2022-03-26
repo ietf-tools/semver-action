@@ -22,7 +22,7 @@ inputs:
     required: false
     default: fix, bugfix, perf, refactor, test, tests
   patchAll:
-    description: If set to true, will ignore patch-list and count any commit as a Patch
+    description: If set to true, will ignore patchList and count any commit as a Patch
     required: false
     default: false
 outputs:
