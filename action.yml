@@ -13,18 +13,50 @@ inputs:
     description: Comma separated commit prefixes, used to bump Major version
     required: false
     default: ''
+  majorTitle:
+    description: Title to be used in release notes for Major version
+    required: false
+    default: 'Breaking Changes'
+  majorEmoji:
+    description: Emoji to be used next to Major Title
+    required: false
+    default: ':chart_with_upwards_trend:'
   minorList:
     description: Comma separated commit prefixes, used to bump Minor version
     required: false
     default: feat, feature
+  minorTitle:
+    description: Title to be used in release notes for Minor version
+    required: false
+    default: "New Features"
+  minorEmoji:
+    description: Emoji to be used next to Minor Title
+    required: false
+    default: ":star:"
   patchList:
     description: Comma separated commit prefixes, used to bump Patch version
     required: false
     default: fix, bugfix, perf, refactor, test, tests
+  patchTitle:
+    description: Title to be used in release notes for Patch version
+    required: false
+    default: "Other Changes"
+  patchEmoji:
+    description: Emoji to be used next to Patch Title
+    required: false
+    default: ":lady_beetle:"
   patchAll:
     description: If set to true, will ignore patchList and count any commit as a Patch
     required: false
     default: false
+  contributorsTitle:
+    description: Title to be used in release notes for Contributors section
+    required: false
+    default: "Contributors"
+  contributorsEmoji:
+    description: Emoji to be used next to Contributors section
+    required: false
+    default: ":heart:"
 outputs:
   current:
     description: Current version number
@@ -32,6 +64,8 @@ outputs:
     description: Next version number in format v0.0.0
   nextStrict:
     description: Next version number without the v prefix
+  changeLog:
+    description: Changelog body for optional usage
 runs:
   using: 'node12'
   main: 'dist/index.js'
