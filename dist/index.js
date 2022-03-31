@@ -2350,7 +2350,7 @@ function _objectWithoutProperties(source, excluded) {
   return target;
 }
 
-const VERSION = "3.5.1";
+const VERSION = "3.6.0";
 
 const _excluded = ["authStrategy"];
 class Octokit {
@@ -29753,9 +29753,17 @@ async function main () {
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
+    ajorTitle: core.getInput('majorTitle').trim(),
+    majorEmoji: core.getInput('majorEmoji').trim(),
     minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
+    minorTitle: core.getInput('minorTitle').trim(),
+    minorEmoji: core.getInput('minorEmoji').trim(),
     patch: core.getInput('patchList').split(',').map(p => p.trim()).filter(p => p),
+    patchTitle: core.getInput('patchTitle').trim(),
+    patchEmoji: core.getInput('patchEmoji').trim(),
     patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true'),
+    contributorsTitle: core.getInput('contributorsTitle').trim(),
+    contributorsEmoji: core.getInput('contributorsEmoji').trim(),
   }
 
   // GET LATEST + PREVIOUS TAGS
@@ -29819,25 +29827,57 @@ async function main () {
   const majorChanges = []
   const minorChanges = []
   const patchChanges = []
+  const contributors = []
+
+  let processCommit = (commit, versionChanges, typeName, versionName, isBreakChange = false) => {
+    versionChanges.push(commit.commit.message)
+
+    let infoTxt = `[${versionName.toUpperCase()}] Commit ${commit.sha} `
+    if (isBreakChange) {
+      infoTxt += `has a BREAKING CHANGE mention, causing`
+    } else {
+      infoTxt += `of type ${typeName} will cause`
+    }
+    infoTxt += ` a ${versionName.toLowerCase()} version bump.`
+
+    core.info(infoTxt)
+  };
+
+  let processContributors = (commit, committers) => {
+
+    let existingAuthor = committers.find((item, index) => {
+      return (item.email === commit.commit.author.email)
+    })
+
+    if (typeof existingAuthor === 'undefined') {
+      committers.push({
+        "name": commit.commit.author.name,
+        "email": commit.commit.author.email,
+        "login": commit.author !== null ? commit.author.login : null,
+        "url": commit.author !== null ? commit.author.html_url : null
+      })
+    }
+  };
+
   for (const commit of commits) {
     try {
       const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
       if (bumpTypes.major.includes(cAst.type)) {
-        majorChanges.push(commit.commit.message)
-        core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`)
+        processCommit(commit, majorChanges, cAst.type, 'major')
+        processContributors(commit, contributors)
       } else if (bumpTypes.minor.includes(cAst.type)) {
-        minorChanges.push(commit.commit.message)
-        core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`)
+        processCommit(commit, minorChanges, cAst.type, 'minor')
+        processContributors(commit, contributors)
       } else if (bumpTypes.patchAll || bumpTypes.patch.includes(cAst.type)) {
-        patchChanges.push(commit.commit.message)
-        core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`)
+        processCommit(commit, patchChanges, cAst.type, 'patch')
+        processContributors(commit, contributors)
       } else {
         core.info(`[SKIP] Commit ${commit.sha} of type ${cAst.type} will not cause any version bump.`)
       }
       for (const note of cAst.notes) {
         if (note.title === 'BREAKING CHANGE') {
-          majorChanges.push(commit.commit.message)
-          core.info(`[MAJOR] Commit ${commit.sha} has a BREAKING CHANGE mention, causing a major version bump.`)
+          processCommit(commit, patchChanges, cAst.type, 'major', true)
+          processContributors(commit, contributors)
         }
       }
     } catch (err) {
@@ -29864,9 +29904,64 @@ async function main () {
   core.info(`Current version is ${latestTag.name}`)
   core.info(`Next version is v${next}`)
 
+  // BUILD CHANGELOG
+
+  buildVersionSection = (title, entries, emoji) => {
+    let section = '## ';
+    if (emoji.length > 0) {
+      section += `${emoji} `;
+    }
+    section += `${title}%0A%0A `;
+
+    entries.forEach((entry) => {
+      section += `- ${entry}%0A `;
+    })
+    section += `%0A `;
+
+    return section
+  }
+
+  buildContributorsSection = (title, contributors, emoji) => {
+    let section = '## ';
+    if (emoji.length > 0) {
+      section += `${emoji} `;
+    }
+    section += `${title}%0A%0A `;
+
+    contributors.forEach((author) => {
+      if (author.login !== null && author.url !== null) {
+        section += `- [@${author.login}](${author.url}) ${author.name}%0A `;
+      } else {
+        section += `- ${author.name}%0A `;
+      }
+    })
+    section += `%0A `;
+
+    return section
+  }
+
+  var changeLog = `# Release v${next}%0A%0A`;
+  if (majorChanges.length > 0 && bumpTypes.majorTitle.length > 0) {
+    changeLog += buildVersionSection(bumpTypes.majorTitle, majorChanges, bumpTypes.majorEmoji)
+  }
+  if (minorChanges.length > 0 && bumpTypes.minorTitle.length > 0) {
+    changeLog += buildVersionSection(bumpTypes.minorTitle, minorChanges, bumpTypes.minorEmoji)
+  }
+  if (patchChanges.length > 0 && bumpTypes.patchTitle.length > 0) {
+    changeLog += buildVersionSection(bumpTypes.patchTitle, patchChanges, bumpTypes.patchEmoji)
+  }
+  if (contributors.length > 0 && bumpTypes.contributorsTitle.length > 0) {
+    changeLog += buildContributorsSection(bumpTypes.contributorsTitle, contributors, bumpTypes.contributorsEmoji)
+  }
+
+  core.info(`Change log is %0A${changeLog}%0A`)
+
+  // EXPORT VALUES
+
   core.exportVariable('current', latestTag.name)
   core.exportVariable('next', `v${next}`)
   core.exportVariable('nextStrict', next)
+  core.exportVariable('changeLog', changeLog)
 }
 
 main()
