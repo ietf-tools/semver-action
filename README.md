@@ -62,13 +62,26 @@ jobs:
 | `patchList` | Comma separated commit prefixes, used to bump Patch version.                                                                               |         :x:        | `fix, bugfix, perf, refactor, test, tests` |
 | `patchAll`  | If set to `true`, will ignore `patchList` and always count commits as a Patch.                                                             |         :x:        | `false`                                    |
 
+### Changelog inputs
+
+- `majorTitle` Optional title of the breaking change section. If set blank, won't be rendered. If unset, will render default.
+- `majorEmoji` Optional emoji code to prefix `majorTitle` text. If set blank, won't be rendered. If unset, will render default.
+- `minorTitle` Optional title of the new features section. If set blank, won't be rendered. If unset, will render default.
+- `minorEmoji` Optional emoji code to prefix `minorTitle` text. If set blank, won't be rendered. If unset, will render default.
+- `patchTitle` Optional title of patch's section. If set blank, won't be rendered. If unset, will render default.
+- `patchEmoji` Optional emoji code to prefix `patchTitle` text. If set blank, won't be rendered. If unset, will render default.
+- `contributorsTitle` Optional title of patch's section. If set blank, won't be rendered. If unset, will render default.
+- `contributorsEmoji` Optional emoji code to prefix `contributorsTitle` text. If set blank, won't be rendered. If unset, will render default.
+
 ## Outputs
 
-| Field        | Description                                 | Example Value |
-|--------------|---------------------------------------------|---------------|
-| `current`    | Current version number / latest tag.        | `v1.1.9`      |
-| `next`       | Next version number in format `v0.0.0`      | `v1.2.0`      |
-| `nextStrict` | Next version number without the `v` prefix. | `1.2.0`       |
+| Field        | Description                                 |  Example Value  |
+|--------------|---------------------------------------------|-----------------|
+| `current`    | Current version number / latest tag.        |  `v1.1.9`       |
+| `next`       | Next version number in format `v0.0.0`      |  `v1.2.0`       |
+| `nextStrict` | Next version number without the `v` prefix. |  `1.2.0`        |
+| `changeLog`  | Change log text, that can be used as        |  `# Release...` |
+|              | release notes.                              |                 |
 
 ## :warning: Important :warning:
 
