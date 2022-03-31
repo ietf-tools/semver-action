@@ -13,7 +13,7 @@ async function main () {
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
-    ajorTitle: core.getInput('majorTitle').trim(),
+    majorTitle: core.getInput('majorTitle').trim(),
     majorEmoji: core.getInput('majorEmoji').trim(),
     minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
     minorTitle: core.getInput('minorTitle').trim(),
@@ -136,7 +136,7 @@ async function main () {
       }
       for (const note of cAst.notes) {
         if (note.title === 'BREAKING CHANGE') {
-          processCommit(commit, patchChanges, cAst.type, 'major', true)
+          processCommit(commit, majorChanges, cAst.type, 'major', true)
           processContributors(commit, contributors)
         }
       }
@@ -200,7 +200,7 @@ async function main () {
     return section
   }
 
-  var changeLog = `# Release v${next}%0A%0A`;
+  let changeLog = `# Release v${next}%0A%0A`;
   if (majorChanges.length > 0 && bumpTypes.majorTitle.length > 0) {
     changeLog += buildVersionSection(bumpTypes.majorTitle, majorChanges, bumpTypes.majorEmoji)
   }
