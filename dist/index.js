@@ -29867,6 +29867,12 @@ async function main () {
   core.exportVariable('current', latestTag.name)
   core.exportVariable('next', `v${next}`)
   core.exportVariable('nextStrict', next)
+
+  core.setOutput('current', latestTag.name)
+  core.setOutput('next', `v${next}`)
+  core.setOutput('nextStrict', next)
+  core.setOutput('nextMajor', `v${semver.major(next)}`)
+  core.setOutput('nextMajorStrict', semver.major(next))
 }
 
 main()
