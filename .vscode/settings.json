@@ -1,5 +1,0 @@
-{
-  "yaml.schemas": {
-    "https://json.schemastore.org/github-workflow.json": "file:///x%3A/ietf/semver-action/.github/workflows/deploy.yml"
-  }
-}
