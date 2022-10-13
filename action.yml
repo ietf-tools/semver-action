@@ -33,7 +33,7 @@ outputs:
   nextStrict:
     description: Next version number without the v prefix
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 branding:
   icon: fast-forward
