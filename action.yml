@@ -24,7 +24,11 @@ inputs:
   patchAll:
     description: If set to true, will ignore patchList and count any commit as a Patch
     required: false
-    default: false
+    default: 'false'
+  skipInvalidTags:
+    description: If set to true, will skip tags that are not valid semver until it finds a proper one (up to 10 from latest).
+    required: false
+    default: 'false'
 outputs:
   current:
     description: Current version number
