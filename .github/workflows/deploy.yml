@@ -14,13 +14,33 @@ jobs:
         uses: actions/checkout@v2
         if: ${{ !env.ACT }}
 
+      - name: Get Next Version
+        id: semver
+        uses: ./
+        if: ${{ !env.ACT }}
+        with:
+          token: ${{ github.token }}
+          branch: main
+          
+      - name: Create Draft Release
+        uses: ncipollo/release-action@v1
+        if: ${{ !env.ACT }}
+        with:
+          prerelease: true
+          draft: false
+          commit: ${{ github.sha }}
+          tag: ${{ steps.semver.outputs.next }}
+          name: ${{ steps.semver.outputs.next }}
+          body: '*pending*'
+          token: ${{ github.token }}
+
       - name: Update CHANGELOG
         if: ${{ !env.ACT }}
         id: changelog
-        uses: ./
+        uses: requarks/changelog-action@v1
         with:
           token: ${{ github.token }}
-          tag: ${{ github.ref_name }}
+          tag: ${{ steps.semver.outputs.next }}
 
       - name: Create Release
         if: ${{ !env.ACT }}
@@ -28,7 +48,20 @@ jobs:
         with:
           allowUpdates: true
           draft: false
-          name: ${{ github.ref_name }}
+          tag: ${{ steps.semver.outputs.next }}
+          name: ${{ steps.semver.outputs.next }}
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ github.token }}
+          
+      - name: Create Release (Major-only)
+        if: ${{ !env.ACT }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          draft: false
+          commit: ${{ github.sha }}
+          tag: ${{ steps.semver.outputs.nextMajor }}
+          name: ${{ steps.semver.outputs.nextMajor }}
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
 
