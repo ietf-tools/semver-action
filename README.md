@@ -61,6 +61,7 @@ jobs:
 | `minorList` | Comma separated commit prefixes, used to bump Minor version.                                                                               |         :x:        | `feat, feature`                            |
 | `patchList` | Comma separated commit prefixes, used to bump Patch version.                                                                               |         :x:        | `fix, bugfix, perf, refactor, test, tests` |
 | `patchAll`  | If set to `true`, will ignore `patchList` and always count commits as a Patch.                                                             |         :x:        | `false`                                    |
+| `skipInvalidTags` | If set to true, will skip tags that are not valid semver until it finds a proper one (up to 10 from latest). |         :x:        | `false`                                    |
 
 ## Outputs
 
