@@ -29,13 +29,21 @@ inputs:
     description: If set to true, will skip tags that are not valid semver until it finds a proper one (up to 10 from latest).
     required: false
     default: 'false'
+  noVersionBumpBehavior:
+    description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, silent)
+    required: false
+    default: error
 outputs:
   current:
-    description: Current version number
+    description: Current version number / latest tag.
   next:
     description: Next version number in format v0.0.0
   nextStrict:
-    description: Next version number without the v prefix
+    description: Next version number without the v prefix.
+  nextMajor:
+    description: Next version major number in format v0
+  nextMajorStrict:
+    description: Next version major number only.
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -17,14 +17,14 @@ This GitHub Action automatically determinate the next release version to use bas
 - [Inputs](#inputs)
 - [Outputs](#outputs)
 
+> Works great alongside the [Changelog from Conventional Commits](https://github.com/marketplace/actions/changelog-from-conventional-commits) action!
+
 ## Example workflow
 ``` yaml
 name: Deploy
 
 on:
-  push:
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -42,10 +42,11 @@ jobs:
           branch: main
 
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true
           draft: false
+          makeLatest: true
           name: ${{ steps.semver.outputs.next }}
           body: Changelog Contents
           token: ${{ github.token }}
@@ -61,7 +62,8 @@ jobs:
 | `minorList` | Comma separated commit prefixes, used to bump Minor version.                                                                               |         :x:        | `feat, feature`                            |
 | `patchList` | Comma separated commit prefixes, used to bump Patch version.                                                                               |         :x:        | `fix, bugfix, perf, refactor, test, tests` |
 | `patchAll`  | If set to `true`, will ignore `patchList` and always count commits as a Patch.                                                             |         :x:        | `false`                                    |
-| `skipInvalidTags` | If set to true, will skip tags that are not valid semver until it finds a proper one (up to 10 from latest). |         :x:        | `false`                                    |
+| `skipInvalidTags` | If set to `true`, will skip tags that are not valid semver until it finds a proper one (up to 10 from latest). |         :x:        | `false`                                    |
+| `noVersionBumpBehavior` | Whether to exit with an error *(default)*, a warning or silently when none of the commits result in a version bump. (Possible values: `error`, `warn` or `silent`) |         :x:        | `error` |
 
 ## Outputs
 

@@ -25,8 +25,8 @@
     "semver": "7.3.8"
   },
   "devDependencies": {
-    "@vercel/ncc": "0.34.0",
-    "eslint": "8.27.0",
+    "@vercel/ncc": "0.36.0",
+    "eslint": "8.30.0",
     "eslint-config-standard": "17.0.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-node": "11.1.0",

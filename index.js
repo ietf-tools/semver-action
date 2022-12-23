@@ -11,6 +11,7 @@ async function main () {
   const owner = github.context.repo.owner
   const repo = github.context.repo.repo
   const skipInvalidTags = core.getBooleanInput('skipInvalidTags')
+  const noVersionBumpBehavior = core.getInput('noVersionBumpBehavior')
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -129,7 +130,17 @@ async function main () {
   } else if (patchChanges.length > 0) {
     bump = 'patch'
   } else {
-    return core.setFailed('No commit resulted in a version bump since last release!')
+    switch (noVersionBumpBehavior) {
+      case 'warn': {
+        return core.warning('No commit resulted in a version bump since last release!')
+      }
+      case 'silent': {
+        return core.info('No commit resulted in a version bump since last release! Exiting silently...')
+      }
+      default: {
+        return core.setFailed('No commit resulted in a version bump since last release!')
+      }
+    }
   }
   core.info(`\n>>> Will bump version ${latestTag.name} using ${bump.toUpperCase()}\n`)
 
