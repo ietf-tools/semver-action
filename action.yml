@@ -1,11 +1,11 @@
 name: 'Semver Conventional Commits'
 description: 'Calculate the next release version based on conventional commits since latest tag'
-author: Nicolas Giard
-inputs:
-  token:
+author: Michael Glenn 
+inputs: SemverGithubActionToken 
+  token:git@github.com:lostleolotus/semver-action.git
     description: GitHub Token
     required: true
-  branch:
+  branch:lostleolotus.github/ietf-tools
     description: The branch to use when fetching list of commits to compare against
     required: false
     default: main
