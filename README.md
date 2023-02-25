@@ -63,7 +63,9 @@ jobs:
 | `patchList` | Comma separated commit prefixes, used to bump Patch version.                                                                               |         :x:        | `fix, bugfix, perf, refactor, test, tests` |
 | `patchAll`  | If set to `true`, will ignore `patchList` and always count commits as a Patch.                                                             |         :x:        | `false`                                    |
 | `skipInvalidTags` | If set to `true`, will skip tags that are not valid semver until it finds a proper one (up to 10 from latest). |         :x:        | `false`                                    |
-| `noVersionBumpBehavior` | Whether to exit with an error *(default)*, a warning or silently when none of the commits result in a version bump. (Possible values: `error`, `warn` or `silent`) |         :x:        | `error` |
+| `noVersionBumpBehavior` | Whether to exit with an error *(default)*, a warning, the current version or silently when none of the commits result in a version bump. (Possible values: `error`, `warn`, `current` or `silent`) |         :x:        | `error` |
+| `prefix` | A prefix that will be ignored when parsing tags (e.g. `foobar/`). Useful for monorepos. The prefix will be added back to the output values. |         :x:        |  |
+| `additionalCommits` | A list of additional commit messages to parse in order to calculate semver. | :x: | |
 
 ## Outputs
 

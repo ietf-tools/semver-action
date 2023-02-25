@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: ${{ !env.ACT }}
 
       - name: Get Next Version
@@ -47,6 +47,7 @@ jobs:
         with:
           allowUpdates: true
           draft: false
+          makeLatest: true
           tag: ${{ steps.semver.outputs.next }}
           name: ${{ steps.semver.outputs.next }}
           body: ${{ steps.changelog.outputs.changes }}
@@ -67,7 +68,7 @@ jobs:
       # LOCAL TEST
 
       - name: (local) Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: ${{ env.ACT }}
         with:
           path: changelog-action

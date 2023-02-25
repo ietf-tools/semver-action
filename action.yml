@@ -30,9 +30,16 @@ inputs:
     required: false
     default: 'false'
   noVersionBumpBehavior:
-    description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, silent)
+    description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, current, silent)
     required: false
     default: error
+  prefix:
+    description: A prefix that will be ignored when parsing tags. Useful for monorepos. The prefix will be added back to the output values.
+    required: false
+    default: ''
+  additionalCommits:
+    description: A list of additional commit messages to parse in order to calculate semver.
+    required: false
 outputs:
   current:
     description: Current version number / latest tag.

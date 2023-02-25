@@ -12,12 +12,24 @@ async function main () {
   const repo = github.context.repo.repo
   const skipInvalidTags = core.getBooleanInput('skipInvalidTags')
   const noVersionBumpBehavior = core.getInput('noVersionBumpBehavior')
+  const prefix = core.getInput('prefix') || ''
+  const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
     minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
     patch: core.getInput('patchList').split(',').map(p => p.trim()).filter(p => p),
     patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true'),
+  }
+
+  function outputVersion (version) {
+    core.exportVariable('next', `${prefix}v${version}`)
+    core.exportVariable('nextStrict', `${prefix}${version}`)
+
+    core.setOutput('next', `${version}v${version}`)
+    core.setOutput('nextStrict', `${prefix}${version}`)
+    core.setOutput('nextMajor', `${prefix}v${semver.major(version)}`)
+    core.setOutput('nextMajorStrict', `${prefix}${semver.major(version)}`)
   }
 
   // GET LATEST + PREVIOUS TAGS
@@ -48,6 +60,9 @@ async function main () {
   let latestTag = null
   let idx = 0
   for (const tag of tagsList) {
+    if (prefix && tag.name.indexOf(prefix) === 0) {
+      tag.name = tag.name.replace(prefix, '')
+    }
     if (semver.valid(tag.name)) {
       latestTag = tag
       break
@@ -61,7 +76,12 @@ async function main () {
     return core.setFailed(skipInvalidTags ? 'None of the 10 latest tags are valid semver!' : 'Latest tag is invalid (does not conform to semver)!')
   }
 
-  core.info(`Comparing against latest tag: ${latestTag.name}`)
+  core.info(`Comparing against latest tag: ${prefix}${latestTag.name}`)
+
+  // OUTPUT CURRENT VARS
+
+  core.exportVariable('current', `${prefix}${latestTag.name}`)
+  core.setOutput('current', `${prefix}${latestTag.name}`)
 
   // GET COMMITS
 
@@ -86,6 +106,10 @@ async function main () {
       hasMoreCommits = true
     }
   } while (hasMoreCommits)
+
+  if (additionalCommits && additionalCommits.length > 0) {
+    commits.push(...additionalCommits)
+  }
 
   if (!commits || commits.length < 1) {
     return core.setFailed('Couldn\'t find any commits between HEAD and latest tag.')
@@ -131,35 +155,32 @@ async function main () {
     bump = 'patch'
   } else {
     switch (noVersionBumpBehavior) {
-      case 'warn': {
-        return core.warning('No commit resulted in a version bump since last release!')
+      case 'current': {
+        core.info('No commit resulted in a version bump since last release! Exiting with current as next version...')
+        outputVersion(semver.clean(latestTag.name))
+        return
       }
       case 'silent': {
         return core.info('No commit resulted in a version bump since last release! Exiting silently...')
+      }
+      case 'warn': {
+        return core.warning('No commit resulted in a version bump since last release!')
       }
       default: {
         return core.setFailed('No commit resulted in a version bump since last release!')
       }
     }
   }
-  core.info(`\n>>> Will bump version ${latestTag.name} using ${bump.toUpperCase()}\n`)
+  core.info(`\n>>> Will bump version ${prefix}${latestTag.name} using ${bump.toUpperCase()}\n`)
 
   // BUMP VERSION
 
   const next = semver.inc(latestTag.name, bump)
 
-  core.info(`Current version is ${latestTag.name}`)
-  core.info(`Next version is v${next}`)
+  core.info(`Current version is ${prefix}${latestTag.name}`)
+  core.info(`Next version is ${prefix}v${next}`)
 
-  core.exportVariable('current', latestTag.name)
-  core.exportVariable('next', `v${next}`)
-  core.exportVariable('nextStrict', next)
-
-  core.setOutput('current', latestTag.name)
-  core.setOutput('next', `v${next}`)
-  core.setOutput('nextStrict', next)
-  core.setOutput('nextMajor', `v${semver.major(next)}`)
-  core.setOutput('nextMajorStrict', semver.major(next))
+  outputVersion(next)
 }
 
 main()
