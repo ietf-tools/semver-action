@@ -51,6 +51,8 @@ outputs:
     description: Next version major number in format v0
   nextMajorStrict:
     description: Next version major number only.
+  versionType:
+    description: The type of version bump
 runs:
   using: 'node16'
   main: 'dist/index.js'
