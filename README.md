@@ -66,6 +66,7 @@ jobs:
 | `noVersionBumpBehavior` | Whether to exit with an error *(default)*, a warning, the current version or silently when none of the commits result in a version bump. (Possible values: `error`, `warn`, `current` or `silent`) |         :x:        | `error` |
 | `prefix` | A prefix that will be ignored when parsing tags (e.g. `foobar/`). Useful for monorepos. The prefix will be added back to the output values. |         :x:        |  |
 | `additionalCommits` | A list of additional commit messages to parse in order to calculate semver. | :x: | |
+| `fromTag` | Override the tag to use when comparing against the branch in order to fetch the list of commits. | :x: | |
 
 ## Outputs
 

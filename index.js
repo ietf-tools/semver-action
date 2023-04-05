@@ -14,6 +14,7 @@ async function main () {
   const noVersionBumpBehavior = core.getInput('noVersionBumpBehavior')
   const prefix = core.getInput('prefix') || ''
   const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
+  const fromTag = core.getInput('fromTag')
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -32,13 +33,60 @@ async function main () {
     core.setOutput('nextMajorStrict', `${prefix}${semver.major(version)}`)
   }
 
-  // GET LATEST + PREVIOUS TAGS
+  let latestTag = null
 
-  const tagsRaw = await gh.graphql(`
-    query lastTags ($owner: String!, $repo: String!) {
-      repository (owner: $owner, name: $repo) {
-        refs(first: 10, refPrefix: "refs/tags/", orderBy: { field: TAG_COMMIT_DATE, direction: DESC }) {
-          nodes {
+  if (!fromTag) {
+    // GET LATEST + PREVIOUS TAGS
+
+    const tagsRaw = await gh.graphql(`
+      query lastTags ($owner: String!, $repo: String!) {
+        repository (owner: $owner, name: $repo) {
+          refs(first: 10, refPrefix: "refs/tags/", orderBy: { field: TAG_COMMIT_DATE, direction: DESC }) {
+            nodes {
+              name
+              target {
+                oid
+              }
+            }
+          }
+        }
+      }
+    `, {
+      owner,
+      repo
+    })
+
+    const tagsList = _.get(tagsRaw, 'repository.refs.nodes', [])
+    if (tagsList.length < 1) {
+      return core.setFailed('Couldn\'t find the latest tag. Make sure you have at least one tag created first!')
+    }
+
+    let idx = 0
+    for (const tag of tagsList) {
+      if (prefix && tag.name.indexOf(prefix) === 0) {
+        tag.name = tag.name.replace(prefix, '')
+      }
+      if (semver.valid(tag.name)) {
+        latestTag = tag
+        break
+      } else if (idx === 0 && !skipInvalidTags) {
+        break
+      }
+      idx++
+    }
+
+    if (!latestTag) {
+      return core.setFailed(skipInvalidTags ? 'None of the 10 latest tags are valid semver!' : 'Latest tag is invalid (does not conform to semver)!')
+    }
+
+    core.info(`Comparing against latest tag: ${prefix}${latestTag.name}`)
+  } else {
+    // GET SPECIFIC TAG
+
+    const tagRaw = await gh.graphql(`
+      query singleTag ($owner: String!, $repo: String!, $tag: String!) {
+        repository (owner: $owner, name: $repo) {
+          ref(qualifiedName: $tag) {
             name
             target {
               oid
@@ -46,37 +94,26 @@ async function main () {
           }
         }
       }
+    `, {
+      owner,
+      repo,
+      tag: `refs/tags/${prefix}${fromTag}`
+    })
+
+    latestTag = _.get(tagsRaw, 'repository.ref')
+
+    if (!latestTag) {
+      return core.setFailed('Provided tag could not be found!')
     }
-  `, {
-    owner,
-    repo
-  })
-
-  const tagsList = _.get(tagsRaw, 'repository.refs.nodes', [])
-  if (tagsList.length < 1) {
-    return core.setFailed('Couldn\'t find the latest tag. Make sure you have at least one tag created first!')
-  }
-
-  let latestTag = null
-  let idx = 0
-  for (const tag of tagsList) {
-    if (prefix && tag.name.indexOf(prefix) === 0) {
-      tag.name = tag.name.replace(prefix, '')
+    if (prefix && latestTag.name.indexOf(prefix) === 0) {
+      latestTag.name = latestTag.name.replace(prefix, '')
     }
-    if (semver.valid(tag.name)) {
-      latestTag = tag
-      break
-    } else if (idx === 0 && !skipInvalidTags) {
-      break
+    if (!semver.valid(latestTag.name)) {
+      return core.setFailed('Provided tag is invalid! (does not conform to semver)')
     }
-    idx++
-  }
 
-  if (!latestTag) {
-    return core.setFailed(skipInvalidTags ? 'None of the 10 latest tags are valid semver!' : 'Latest tag is invalid (does not conform to semver)!')
+    core.info(`Comparing against provided tag: ${prefix}${latestTag.name}`)
   }
-
-  core.info(`Comparing against latest tag: ${prefix}${latestTag.name}`)
 
   // OUTPUT CURRENT VARS
 

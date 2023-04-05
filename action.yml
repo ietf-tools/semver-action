@@ -40,6 +40,10 @@ inputs:
   additionalCommits:
     description: A list of additional commit messages to parse in order to calculate semver.
     required: false
+  fromTag:
+    description: Override the tag to use when comparing against the branch in order to fetch the list of commits.
+    required: false
+    default: ''
 outputs:
   current:
     description: Current version number / latest tag.
