@@ -100,7 +100,7 @@ async function main () {
       tag: `refs/tags/${prefix}${fromTag}`
     })
 
-    latestTag = _.get(tagsRaw, 'repository.ref')
+    latestTag = _.get(tagRaw, 'repository.ref')
 
     if (!latestTag) {
       return core.setFailed('Provided tag could not be found!')
