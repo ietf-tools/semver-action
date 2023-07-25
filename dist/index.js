@@ -31051,6 +31051,7 @@ async function main () {
   const repo = github.context.repo.repo
   const skipInvalidTags = core.getBooleanInput('skipInvalidTags')
   const noVersionBumpBehavior = core.getInput('noVersionBumpBehavior')
+  const preReleaseStage = core.getInput('preReleaseStage') || 'none'
   const prefix = core.getInput('prefix') || ''
   const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
 
@@ -31222,13 +31223,13 @@ async function main () {
       }
     }
   }
-
+  if (preReleaseStage != 'none') bump = `pre${bump}`;
   core.setOutput('versionType', bump)
   core.info(`\n>>> Will bump version ${prefix}${latestTag.name} using ${bump.toUpperCase()}\n`)
 
   // BUMP VERSION
 
-  const next = semver.inc(latestTag.name, bump)
+  const next = preReleaseStage == 'none'? semver.inc(latestTag.name, bump): semver.inc(latestTag.name, bump, preReleaseStage);
 
   core.info(`Current version is ${prefix}${latestTag.name}`)
   core.info(`Next version is ${prefix}v${next}`)

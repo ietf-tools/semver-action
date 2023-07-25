@@ -33,6 +33,10 @@ inputs:
     description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, current, silent)
     required: false
     default: error
+  preReleaseStage:
+    description: The Pre Release Stage to use, (rc, beta, alpha, etc)
+    required: false
+    default: none
   prefix:
     description: A prefix that will be ignored when parsing tags. Useful for monorepos. The prefix will be added back to the output values.
     required: false
