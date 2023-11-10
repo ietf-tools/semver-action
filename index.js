@@ -4,7 +4,7 @@ const _ = require('lodash')
 const cc = require('@conventional-commits/parser')
 const semver = require('semver')
 
-async function main () {
+async function main() {
   const token = core.getInput('token')
   const branch = core.getInput('branch')
   const gh = github.getOctokit(token)
@@ -23,7 +23,7 @@ async function main () {
     patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true'),
   }
 
-  function outputVersion (version) {
+  function outputVersion(version) {
     core.exportVariable('next', `${prefix}v${version}`)
     core.exportVariable('nextStrict', `${prefix}${version}`)
 
@@ -132,7 +132,7 @@ async function main () {
     const commitsRaw = await gh.rest.repos.compareCommitsWithBasehead({
       owner,
       repo,
-      basehead: `${latestTag.name}...${branch}`,
+      basehead: `${prefix}${latestTag.name}...${branch}`,
       page: curPage,
       per_page: 100
     })
