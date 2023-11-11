@@ -31043,7 +31043,7 @@ const _ = __nccwpck_require__(250)
 const cc = __nccwpck_require__(4523)
 const semver = __nccwpck_require__(1383)
 
-async function main() {
+async function main () {
   const token = core.getInput('token')
   const branch = core.getInput('branch')
   const gh = github.getOctokit(token)
@@ -31062,7 +31062,7 @@ async function main() {
     patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true'),
   }
 
-  function outputVersion(version) {
+  function outputVersion (version) {
     core.exportVariable('next', `${prefix}v${version}`)
     core.exportVariable('nextStrict', `${prefix}${version}`)
 
