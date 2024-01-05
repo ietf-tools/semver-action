@@ -12,6 +12,7 @@ async function main () {
   const repo = github.context.repo.repo
   const skipInvalidTags = core.getBooleanInput('skipInvalidTags')
   const noVersionBumpBehavior = core.getInput('noVersionBumpBehavior')
+  const noNewCommitBehavior = core.getInput('noNewCommitBehavior')
   const prefix = core.getInput('prefix') || ''
   const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
   const fromTag = core.getInput('fromTag')
@@ -149,7 +150,22 @@ async function main () {
   }
 
   if (!commits || commits.length < 1) {
-    return core.setFailed('Couldn\'t find any commits between HEAD and latest tag.')
+    switch (noNewCommitBehavior) {
+      case 'current': {
+        core.info(`Couldn't find any commits between branch HEAD and latest tag. Exiting with current as next version...`)
+        outputVersion(semver.clean(latestTag.name))
+        return
+      }
+      case 'silent': {
+        return core.info(`Couldn't find any commits between branch HEAD and latest tag. Exiting silently...`)
+      }
+      case 'warn': {
+        return core.warning(`Couldn't find any commits between branch HEAD and latest tag.`)
+      }
+      default: {
+        return core.setFailed(`Couldn't find any commits between branch HEAD and latest tag.`)
+      }
+    }
   }
 
   // PARSE COMMITS

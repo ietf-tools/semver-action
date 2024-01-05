@@ -33,6 +33,10 @@ inputs:
     description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, current, silent)
     required: false
     default: error
+  noNewCommitBehavior:
+    description: Whether to exit with an error, warning or silently when there are no new commits since the latest tag. (error, warn, current, silent)
+    required: false
+    default: error
   prefix:
     description: A prefix that will be ignored when parsing tags. Useful for monorepos. The prefix will be added back to the output values.
     required: false
