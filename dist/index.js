@@ -52961,7 +52961,7 @@ async function main () {
   const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
   const fromTag = core.getInput('fromTag')
   const maxTagsToFetch = _.toSafeInteger(core.getInput('maxTagsToFetch') || 10)
-  const maxTagsToFetchSafe = maxTagsToFetch < 1 || maxTagsToFetch > 100 ? 10 : maxTagsToFetch
+  const fetchLimit = (maxTagsToFetch < 1 || maxTagsToFetch > 100) ? 10 : maxTagsToFetch
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -52986,9 +52986,20 @@ async function main () {
     // GET LATEST + PREVIOUS TAGS
 
     const tagsRaw = await gh.graphql(`
-      query lastTags ($owner: String!, $repo: String!) {
-        repository (owner: $owner, name: $repo) {
-          refs(first: maxTagsToFetchSafe, refPrefix: "refs/tags/", orderBy: { field: TAG_COMMIT_DATE, direction: DESC }) {
+      query lastTags (
+        $owner: String!
+        $repo: String!
+        $fetchLimit: Int
+        ) {
+        repository (
+          owner: $owner
+          name: $repo
+          ) {
+          refs(
+            first: $fetchLimit
+            refPrefix: "refs/tags/"
+            orderBy: { field: TAG_COMMIT_DATE, direction: DESC }
+            ) {
             nodes {
               name
               target {
@@ -52998,9 +53009,11 @@ async function main () {
           }
         }
       }
-    `, {
+    `,
+    {
       owner,
-      repo
+      repo,
+      fetchLimit
     })
 
     const tagsList = _.get(tagsRaw, 'repository.refs.nodes', [])
@@ -53028,9 +53041,9 @@ async function main () {
 
     if (!latestTag) {
       if (prefix) {
-        return core.setFailed(`None of the ${maxTagsToFetchSafe} latest tags are valid semver or match the specified prefix!`)
+        return core.setFailed(`None of the ${fetchLimit} latest tags are valid semver or match the specified prefix!`)
       } else {
-        return core.setFailed(skipInvalidTags ? `None of the ${maxTagsToFetchSafe} latest tags are valid semver!` : 'Latest tag is invalid (does not conform to semver)!')
+        return core.setFailed(skipInvalidTags ? `None of the ${fetchLimit} latest tags are valid semver!` : 'Latest tag is invalid (does not conform to semver)!')
       }
     }
 
