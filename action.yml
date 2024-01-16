@@ -30,7 +30,7 @@ inputs:
     required: false
     default: 'false'
   noVersionBumpBehavior:
-    description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, current, silent)
+    description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, current, patch, silent)
     required: false
     default: error
   noNewCommitBehavior:
@@ -60,7 +60,7 @@ outputs:
   nextMajorStrict:
     description: Next version major number only.
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 branding:
   icon: fast-forward

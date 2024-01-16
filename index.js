@@ -21,7 +21,7 @@ async function main () {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
     minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
     patch: core.getInput('patchList').split(',').map(p => p.trim()).filter(p => p),
-    patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true'),
+    patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true')
   }
 
   function outputVersion (version) {
@@ -212,6 +212,11 @@ async function main () {
         core.info('No commit resulted in a version bump since last release! Exiting with current as next version...')
         outputVersion(semver.clean(latestTag.name))
         return
+      }
+      case 'patch': {
+        core.info('No commit resulted in a version bump since last release! Defaulting to using PATCH...')
+        bump = 'patch'
+        break
       }
       case 'silent': {
         return core.info('No commit resulted in a version bump since last release! Exiting silently...')
