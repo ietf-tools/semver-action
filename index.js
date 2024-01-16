@@ -16,6 +16,8 @@ async function main () {
   const prefix = core.getInput('prefix') || ''
   const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
   const fromTag = core.getInput('fromTag')
+  const maxTagsToFetch = _.toSafeInteger(core.getInput('maxTagsToFetch') || 10)
+  const maxTagsToFetchSafe = maxTagsToFetch < 1 || maxTagsToFetch > 100 ? 10 : maxTagsToFetch
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -42,7 +44,7 @@ async function main () {
     const tagsRaw = await gh.graphql(`
       query lastTags ($owner: String!, $repo: String!) {
         repository (owner: $owner, name: $repo) {
-          refs(first: 10, refPrefix: "refs/tags/", orderBy: { field: TAG_COMMIT_DATE, direction: DESC }) {
+          refs(first: maxTagsToFetchSafe, refPrefix: "refs/tags/", orderBy: { field: TAG_COMMIT_DATE, direction: DESC }) {
             nodes {
               name
               target {
@@ -64,8 +66,12 @@ async function main () {
 
     let idx = 0
     for (const tag of tagsList) {
-      if (prefix && tag.name.indexOf(prefix) === 0) {
-        tag.name = tag.name.replace(prefix, '')
+      if (prefix) {
+        if (tag.name.indexOf(prefix) === 0) {
+          tag.name = tag.name.replace(prefix, '')
+        } else {
+          continue
+        }
       }
       if (semver.valid(tag.name)) {
         latestTag = tag
@@ -77,7 +83,11 @@ async function main () {
     }
 
     if (!latestTag) {
-      return core.setFailed(skipInvalidTags ? 'None of the 10 latest tags are valid semver!' : 'Latest tag is invalid (does not conform to semver)!')
+      if (prefix) {
+        return core.setFailed(`None of the ${maxTagsToFetchSafe} latest tags are valid semver or match the specified prefix!`)
+      } else {
+        return core.setFailed(skipInvalidTags ? `None of the ${maxTagsToFetchSafe} latest tags are valid semver!` : 'Latest tag is invalid (does not conform to semver)!')
+      }
     }
 
     core.info(`Comparing against latest tag: ${prefix}${latestTag.name}`)

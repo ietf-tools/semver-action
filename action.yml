@@ -26,7 +26,7 @@ inputs:
     required: false
     default: 'false'
   skipInvalidTags:
-    description: If set to true, will skip tags that are not valid semver until it finds a proper one (up to 10 from latest).
+    description: If set to true, will skip tags that are not valid semver until it finds a proper one (up to maxTagsFetch from latest).
     required: false
     default: 'false'
   noVersionBumpBehavior:
@@ -38,7 +38,7 @@ inputs:
     required: false
     default: error
   prefix:
-    description: A prefix that will be ignored when parsing tags. Useful for monorepos. The prefix will be added back to the output values.
+    description: A prefix that will be striped when parsing tags (e.g. `foobar/`). Any other prefix will be ignored. The prefix will be added back to the output values.
     required: false
     default: ''
   additionalCommits:
@@ -48,6 +48,10 @@ inputs:
     description: Override the tag to use when comparing against the branch in order to fetch the list of commits.
     required: false
     default: ''
+  maxTagsToFetch:
+    description: Maximum number of tags to fetch from latest.
+    required: false
+    default: '10'
 outputs:
   current:
     description: Current version number / latest tag.
