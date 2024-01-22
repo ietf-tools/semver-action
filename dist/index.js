@@ -53197,6 +53197,7 @@ async function main () {
     }
   }
   core.info(`\n>>> Will bump version ${prefix}${latestTag.name} using ${bump.toUpperCase()}\n`)
+  core.setOutput('bump', bump || 'none')
 
   // BUMP VERSION
 

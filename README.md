@@ -72,13 +72,14 @@ jobs:
 
 ## Outputs
 
-| Field             | Description                                 | Example Value |
-|-------------------|---------------------------------------------|---------------|
-| `current`         | Current version number / latest tag.        | `v1.1.9`      |
-| `next`            | Next version number in format `v0.0.0`      | `v1.2.0`      |
-| `nextStrict`      | Next version number without the `v` prefix. | `1.2.0`       |
-| `nextMajor`       | Next version major number in format `v0`    | `v1`          |
-| `nextMajorStrict` | Next version major number only.             | `1`           |
+| Field             | Description                                                 | Example Value |
+|-------------------|-------------------------------------------------------------|---------------|
+| `current`         | Current version number / latest tag.                        | `v1.1.9`      |
+| `next`            | Next version number in format `v0.0.0`                      | `v1.2.0`      |
+| `nextStrict`      | Next version number without the `v` prefix.                 | `1.2.0`       |
+| `nextMajor`       | Next version major number in format `v0`                    | `v1`          |
+| `nextMajorStrict` | Next version major number only.                             | `1`           |
+| `bump`            | Next version behavior: `major`, `major`, `major` or `none`. | `minor`       |
 
 ## :warning: Important :warning:
 

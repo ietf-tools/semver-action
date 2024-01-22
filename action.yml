@@ -63,6 +63,8 @@ outputs:
     description: Next version major number in format v0
   nextMajorStrict:
     description: Next version major number only.
+  bump:
+    description: Next version behavior.
 runs:
   using: 'node20'
   main: 'dist/index.js'
