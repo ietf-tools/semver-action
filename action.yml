@@ -52,6 +52,9 @@ inputs:
     description: Maximum number of tags to fetch from latest.
     required: false
     default: '10'
+  tagFilter:
+    description: Regex pattern used to filter out tags that should be ignored.
+    required: false
 outputs:
   current:
     description: Current version number / latest tag.

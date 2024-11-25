@@ -52962,6 +52962,7 @@ async function main () {
   const fromTag = core.getInput('fromTag')
   const maxTagsToFetch = _.toSafeInteger(core.getInput('maxTagsToFetch') || 10)
   const fetchLimit = (maxTagsToFetch < 1 || maxTagsToFetch > 100) ? 10 : maxTagsToFetch
+  const tagFilter = core.getInput('tagFilter')
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -53022,7 +53023,19 @@ async function main () {
     }
 
     let idx = 0
+
+    if (tagFilter) {
+      console.log('Will filter out tags that match: ' + tagFilter)
+    }
+
     for (const tag of tagsList) {
+      if (tagFilter) {
+        if (new RegExp(tagFilter).test(tag.name)) {
+          console.log(`Skipping tag "${tag.name}" (matches tagFilter)`)
+          continue
+        }
+      }
+
       if (prefix) {
         if (tag.name.indexOf(prefix) === 0) {
           tag.name = tag.name.replace(prefix, '')
