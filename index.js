@@ -29,9 +29,11 @@ async function main () {
   function outputVersion (version) {
     core.exportVariable('next', `${prefix}v${version}`)
     core.exportVariable('nextStrict', `${prefix}${version}`)
+    core.exportVariable('nextVer', `${version}`)
 
     core.setOutput('next', `${prefix}v${version}`)
     core.setOutput('nextStrict', `${prefix}${version}`)
+    core.setOutput('nextVer', `${prefix}${version}`)
     core.setOutput('nextMajor', `${prefix}v${semver.major(version)}`)
     core.setOutput('nextMajorStrict', `${prefix}${semver.major(version)}`)
   }
