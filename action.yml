@@ -1,5 +1,5 @@
-name: 'AdmirHad/Semver Conventional Commits'
-description: 'forked from ietf'
+name: 'Semver Conventional Commits'
+description: 'Calculate the next release version based on conventional commits since latest tag'
 author: Nicolas Giard
 inputs:
   token:
