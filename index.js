@@ -18,6 +18,7 @@ async function main () {
   const fromTag = core.getInput('fromTag')
   const maxTagsToFetch = _.toSafeInteger(core.getInput('maxTagsToFetch') || 10)
   const fetchLimit = (maxTagsToFetch < 1 || maxTagsToFetch > 100) ? 10 : maxTagsToFetch
+  const prefixIgnoreList = core.getInput('prefixIgnoreList').split(',').map(p => p.trim()).filter(p => p)
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -196,29 +197,39 @@ async function main () {
   const majorChanges = []
   const minorChanges = []
   const patchChanges = []
+
+  function parseCommitMessage(message, ignoreList) {
+    let cleanedMessage = message;
+    if (ignoreList && ignoreList.length > 0) {
+      const regex = new RegExp(`^(${ignoreList.join('|')})\\s*`, 'i');
+      cleanedMessage = message.replace(regex, '');
+    }
+    return cc.toConventionalChangelogFormat(cc.parser(cleanedMessage));
+  }
+
   for (const commit of commits) {
     try {
-      const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
+      const cAst = parseCommitMessage(commit.commit.message, prefixIgnoreList);
       if (bumpTypes.major.includes(cAst.type)) {
-        majorChanges.push(commit.commit.message)
-        core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`)
+        majorChanges.push(commit.commit.message);
+        core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`);
       } else if (bumpTypes.minor.includes(cAst.type)) {
-        minorChanges.push(commit.commit.message)
-        core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`)
+        minorChanges.push(commit.commit.message);
+        core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`);
       } else if (bumpTypes.patchAll || bumpTypes.patch.includes(cAst.type)) {
-        patchChanges.push(commit.commit.message)
-        core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`)
+        patchChanges.push(commit.commit.message);
+        core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`);
       } else {
-        core.info(`[SKIP] Commit ${commit.sha} of type ${cAst.type} will not cause any version bump.`)
+        core.info(`[SKIP] Commit ${commit.sha} of type ${cAst.type} will not cause any version bump.`);
       }
       for (const note of cAst.notes) {
         if (note.title === 'BREAKING CHANGE') {
-          majorChanges.push(commit.commit.message)
-          core.info(`[MAJOR] Commit ${commit.sha} has a BREAKING CHANGE mention, causing a major version bump.`)
+          majorChanges.push(commit.commit.message);
+          core.info(`[MAJOR] Commit ${commit.sha} has a BREAKING CHANGE mention, causing a major version bump.`);
         }
       }
     } catch (err) {
-      core.info(`[INVALID] Skipping commit ${commit.sha} as it doesn't follow conventional commit format.`)
+      core.info(`[INVALID] Skipping commit ${commit.sha} as it doesn't follow conventional commit format.`);
     }
   }
 
