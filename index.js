@@ -201,8 +201,18 @@ async function main () {
   function parseCommitMessage(message, ignoreList) {
     let cleanedMessage = message;
     if (ignoreList && ignoreList.length > 0) {
-      const regex = new RegExp(`^(${ignoreList.join('|')})\\s*`, 'i');
-      cleanedMessage = message.replace(regex, '');
+      // Convert wildcard patterns to regex
+      const regexPatterns = ignoreList.map(pattern => {
+        const regexString = pattern
+          .replace(/\*/g, '.*')  // Convert '*' to '.*' for regex
+          .replace(/\?/g, '.');  // Convert '?' to '.' for regex
+        return new RegExp(`^${regexString}\\s*`, 'i');
+      });
+
+      // Apply each regex pattern to strip the prefix
+      for (const regex of regexPatterns) {
+        cleanedMessage = cleanedMessage.replace(regex, '');
+      }
     }
     return cc.toConventionalChangelogFormat(cc.parser(cleanedMessage));
   }
