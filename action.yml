@@ -1,5 +1,5 @@
-name: 'Semver Conventional Commits'
-description: 'Calculate the next release version based on conventional commits since latest tag'
+name: 'AdmirHad/Semver Conventional Commits'
+description: 'forked from ietf'
 author: Nicolas Giard
 inputs:
   token:
@@ -52,6 +52,10 @@ inputs:
     description: Maximum number of tags to fetch from latest.
     required: false
     default: '10'
+  prefixIgnoreList:
+    description: Comma separated list of prefixes to ignore in commit messages when evaluating for semantic versioning. Supports wildcards like `*` and `?`.
+    required: false
+    default: ''
 outputs:
   current:
     description: Current version number / latest tag.
