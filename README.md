@@ -80,7 +80,7 @@ jobs:
 | `nextStrict`      | Next version number without the `v` prefix.                 | `1.2.0`       |
 | `nextMajor`       | Next version major number in format `v0`                    | `v1`          |
 | `nextMajorStrict` | Next version major number only.                             | `1`           |
-| `bump`            | Next version behavior: `major`, `major`, `major` or `none`. | `minor`       |
+| `bump`            | Next version behavior: `major`, `minor`, `patch` or `none`. | `minor`       |
 
 ## :warning: Important :warning:
 
