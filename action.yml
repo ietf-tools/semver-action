@@ -52,6 +52,10 @@ inputs:
     description: Maximum number of tags to fetch from latest.
     required: false
     default: '10'
+  fallbackTag:
+    description: Fallback tag to use if no latest tag is found.
+    required: false
+    default: ''
 outputs:
   current:
     description: Current version number / latest tag.

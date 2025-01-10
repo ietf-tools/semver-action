@@ -18,6 +18,7 @@ async function main () {
   const fromTag = core.getInput('fromTag')
   const maxTagsToFetch = _.toSafeInteger(core.getInput('maxTagsToFetch') || 10)
   const fetchLimit = (maxTagsToFetch < 1 || maxTagsToFetch > 100) ? 10 : maxTagsToFetch
+  const fallbackTag = core.getInput('fallbackTag')
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -74,7 +75,12 @@ async function main () {
 
     const tagsList = _.get(tagsRaw, 'repository.refs.nodes', [])
     if (tagsList.length < 1) {
-      return core.setFailed('Couldn\'t find the latest tag. Make sure you have at least one tag created first!')
+      if (fallbackTag && semver.valid(fallbackTag)) {
+        core.info(`Using fallback tag: ${fallbackTag}`)
+        latestTag = { name: fallbackTag }
+      } else {
+        return core.setFailed('Couldn\'t find the latest tag. Make sure you have at least one tag created or provide a fallbackTag!')
+      }
     }
 
     let idx = 0
@@ -96,10 +102,17 @@ async function main () {
     }
 
     if (!latestTag) {
-      if (prefix) {
-        return core.setFailed(`None of the ${fetchLimit} latest tags are valid semver or match the specified prefix!`)
+      if (fallbackTag && semver.valid(fallbackTag)) {
+        core.info(`Using fallback tag: ${fallbackTag}`);
+        latestTag = { name: fallbackTag };
       } else {
-        return core.setFailed(skipInvalidTags ? `None of the ${fetchLimit} latest tags are valid semver!` : 'Latest tag is invalid (does not conform to semver)!')
+        if (prefix) {
+          return core.setFailed(`None of the ${fetchLimit} latest tags are valid semver or match the specified prefix!`);
+        } else {
+          return core.setFailed(skipInvalidTags
+            ? `None of the ${fetchLimit} latest tags are valid semver!`
+            : 'Latest tag is invalid (does not conform to semver)!');
+        }
       }
     }
 

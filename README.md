@@ -63,12 +63,13 @@ jobs:
 | `patchList` | Comma separated commit prefixes, used to bump Patch version.                                                                               |         :x:        | `fix, bugfix, perf, refactor, test, tests` |
 | `patchAll`  | If set to `true`, will ignore `patchList` and always count commits as a Patch.                                                             |         :x:        | `false`                                    |
 | `skipInvalidTags` | If set to `true`, will skip tags that are not valid semver until it finds a proper one (up to `maxTagsFetch` from latest). |         :x:        | `false`                                    |
-| `noVersionBumpBehavior` | Whether to exit with an error *(default)*, a warning, silently, the current version or force bump using patch when none of the commits result in a version bump. (Possible values: `error`, `warn`, `current`, `patch` or `silent`) |         :x:        | `error` |
-| `noNewCommitBehavior` | Whether to exit with an error *(default)*, a warning, the current version or silently when there are no new commits since the latest tag. (Possible values: `error`, `warn`, `current` or `silent`) |         :x:        | `error` |
-| `prefix` | A prefix that will be striped when parsing tags (e.g. `foobar/`). Any other prefix will be ignored. Useful for monorepos. The prefix will be added back to the output values. |         :x:        |  |
-| `additionalCommits` | A list of additional commit messages to parse in order to calculate semver. | :x: | |
-| `fromTag` | Override the tag to use when comparing against the branch in order to fetch the list of commits. | :x: | |
-| `maxTagsToFetch` | Maximum number of tags to fetch from latest. | :x: | `10` |
+| `noVersionBumpBehavior` | Whether to exit with an error *(default)*, a warning, silently, the current version or force bump using patch when none of the commits result in a version bump. (Possible values: `error`, `warn`, `current`, `patch` or `silent`) |         :x:        | `error`                                    |
+| `noNewCommitBehavior` | Whether to exit with an error *(default)*, a warning, the current version or silently when there are no new commits since the latest tag. (Possible values: `error`, `warn`, `current` or `silent`) |         :x:        | `error`                                    |
+| `prefix` | A prefix that will be striped when parsing tags (e.g. `foobar/`). Any other prefix will be ignored. Useful for monorepos. The prefix will be added back to the output values. |         :x:        |                                            |
+| `additionalCommits` | A list of additional commit messages to parse in order to calculate semver. | :x: |                                            |
+| `fromTag` | Override the tag to use when comparing against the branch in order to fetch the list of commits. | :x: |                                            |
+| `maxTagsToFetch` | Maximum number of tags to fetch from latest. | :x: | `10`                                       |
+| `fallbackTag` | A fallback tag to use if no valid latest tag can be found. | :x: | `0.0.0`                                    |
 
 ## Outputs
 
@@ -83,4 +84,4 @@ jobs:
 
 ## :warning: Important :warning:
 
-You must already have an existing tag in your repository. The job will exit with an error if it can't find the latest tag to compare against!
+If no valid latest tag is found and no fallbackTag is provided, the job will exit with an error. To avoid this, you can use the fallbackTag input to specify a default tag value (e.g., 0.0.0).
