@@ -69,7 +69,7 @@ jobs:
 | `additionalCommits` | A list of additional commit messages to parse in order to calculate semver. | :x: |                                            |
 | `fromTag` | Override the tag to use when comparing against the branch in order to fetch the list of commits. | :x: |                                            |
 | `maxTagsToFetch` | Maximum number of tags to fetch from latest. | :x: | `10`                                       |
-| `fallbackTag` | A fallback tag to use if no valid latest tag can be found. | :x: | `0.0.0`                                    |
+| `fallbackTag` | A fallback tag to use if no valid latest tag can be found. | :x: |                                    |
 
 ## Outputs
 
