@@ -84,4 +84,4 @@ jobs:
 
 ## :warning: Important :warning:
 
-If no valid latest tag is found and no `fallbackTag` is provided, the job will exit with an error. To avoid this, you can use the `fallbackTag` option to specify a default tag value (e.g., 0.0.0).
+If no valid latest tag is found and no `fallbackTag` is provided, the job will exit with an error. To avoid this, you can use the `fallbackTag` option to specify a default tag value (e.g. `0.0.0`).
