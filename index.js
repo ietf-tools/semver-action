@@ -103,15 +103,13 @@ async function main () {
 
     if (!latestTag) {
       if (fallbackTag && semver.valid(fallbackTag)) {
-        core.info(`Using fallback tag: ${fallbackTag}`);
-        latestTag = { name: fallbackTag };
+        core.info(`Using fallback tag: ${fallbackTag}`)
+        latestTag = { name: fallbackTag }
       } else {
         if (prefix) {
-          return core.setFailed(`None of the ${fetchLimit} latest tags are valid semver or match the specified prefix!`);
+          return core.setFailed(`None of the ${fetchLimit} latest tags are valid semver or match the specified prefix!`)
         } else {
-          return core.setFailed(skipInvalidTags
-            ? `None of the ${fetchLimit} latest tags are valid semver!`
-            : 'Latest tag is invalid (does not conform to semver)!');
+          return core.setFailed(skipInvalidTags ? `None of the ${fetchLimit} latest tags are valid semver!` : 'Latest tag is invalid (does not conform to semver)!')
         }
       }
     }
