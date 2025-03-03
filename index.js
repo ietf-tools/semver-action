@@ -19,6 +19,7 @@ async function main () {
   const maxTagsToFetch = _.toSafeInteger(core.getInput('maxTagsToFetch') || 10)
   const fetchLimit = (maxTagsToFetch < 1 || maxTagsToFetch > 100) ? 10 : maxTagsToFetch
   const fallbackTag = core.getInput('fallbackTag')
+  const tagFilter = core.getInput('tagFilter')
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -83,6 +84,12 @@ async function main () {
       }
     }
 
+    let tagFilterRgx = null
+    if (tagFilter) {
+      core.info(`Will filter tags based on pattern: ${tagFilter}`)
+      tagFilterRgx = new RegExp(tagFilter)
+    }
+
     let idx = 0
     for (const tag of tagsList) {
       if (prefix) {
@@ -92,6 +99,11 @@ async function main () {
           continue
         }
       }
+
+      if (tagFilterRgx && !tagFilterRgx.test(tag.name)) {
+        continue
+      }
+
       if (semver.valid(tag.name)) {
         latestTag = tag
         break

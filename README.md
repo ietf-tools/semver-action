@@ -70,6 +70,7 @@ jobs:
 | `noVersionBumpBehavior` | Whether to exit with an error *(default)*, a warning, silently, the current version or force bump using patch when none of the commits result in a version bump. (Possible values: `error`, `warn`, `current`, `patch` or `silent`) | :x: | `error` |
 | `prefix` | A prefix that will be striped when parsing tags (e.g. `foobar/`). Any other prefix will be ignored. Useful for monorepos. The prefix will be added back to the output values. | :x: |  |
 | `skipInvalidTags` | If set to `true`, will skip tags that are not valid semver until it finds a proper one (up to `maxTagsFetch` from latest). | :x: | `false` |
+| `tagFilter` | If defined, only tags matching the regex pattern will be included (e.g. `^[a-f0-9.]+$`). Use a negative lookahead match to exclude tags (e.g. `^(?!abcd).*$`). When used in conjunction with the prefix option, the prefix is striped first, then the filter is applied. | :x: |  |
 
 ## Outputs
 
