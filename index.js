@@ -192,7 +192,7 @@ async function main () {
   } while (hasMoreCommits)
 
   if (additionalCommits && additionalCommits.length > 0) {
-    commits.push(...additionalCommits)
+    commits.push(...additionalCommits.map(ac => ({ commit: { message: ac }, sha: 'unknown' })))
   }
 
   if (!commits || commits.length < 1) {
