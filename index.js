@@ -41,40 +41,66 @@ async function main () {
   let latestTag = null
 
   if (!fromTag) {
-    // GET LATEST + PREVIOUS TAGS
-
-    const tagsRaw = await gh.graphql(`
-      query lastTags (
-        $owner: String!
-        $repo: String!
-        $fetchLimit: Int
-        ) {
-        repository (
-          owner: $owner
-          name: $repo
+    async function fetchAllTags(owner, repo, fetchLimit, cursor) {
+      const query = `
+        query lastTags (
+          $owner: String!
+          $repo: String!
+          $fetchLimit: Int
+          $cursor: String
           ) {
-          refs(
-            first: $fetchLimit
-            refPrefix: "refs/tags/"
-            orderBy: { field: TAG_COMMIT_DATE, direction: DESC }
+          repository (
+            owner: $owner
+            name: $repo
             ) {
-            nodes {
-              name
-              target {
-                oid
+            refs(
+              first: $fetchLimit
+              after: $cursor
+              refPrefix: "refs/tags/"
+              orderBy: { field: TAG_COMMIT_DATE, direction: DESC }
+              ) {
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
+              edges {
+                node {
+                  name
+                  target {
+                    oid
+                  }
+                }
               }
             }
           }
         }
+      `;
+    
+      const variables = {
+        owner,
+        repo,
+        fetchLimit,
+        cursor
+      };
+    
+      const data = await gh.graphql(query, variables);
+      const tags = data.repository.refs.edges.map(edge => edge.node);
+    
+      if (data.repository.refs.pageInfo.hasNextPage) {
+        const nextCursor = data.repository.refs.pageInfo.endCursor;
+        return tags.concat(await fetchAllTags(owner, repo, fetchLimit, nextCursor));
+      } else {
+        return tags;
       }
-    `,
-    {
-      owner,
-      repo,
-      fetchLimit
-    })
+    }
+    
+    const tagsRaw = await fetchAllTags(owner, repo, fetchLimit, null);
 
-    const tagsList = _.get(tagsRaw, 'repository.refs.nodes', [])
+    const tagsList = tagsRaw.map(item => ({ 
+      name: item.name, 
+      target: item.target })
+    );
+
     if (tagsList.length < 1) {
       if (fallbackTag && semver.valid(fallbackTag)) {
         core.info(`Using fallback tag: ${fallbackTag}`)
