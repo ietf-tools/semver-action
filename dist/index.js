@@ -53190,7 +53190,6 @@ async function main () {
       }
     }
 
-    let bump = null
     if (majorChanges.length > 0) {
       bump = 'major'
     } else if (minorChanges.length > 0) {
