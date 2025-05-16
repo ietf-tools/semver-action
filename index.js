@@ -214,10 +214,9 @@ async function main () {
     }
   }
 
-  // PARSE COMMITS
-
   let bump = null
   if (!bumpTypes.patchAll) {
+    // PARSE COMMITS
     const majorChanges = []
     const minorChanges = []
     const patchChanges = []
