@@ -216,65 +216,71 @@ async function main () {
 
   // PARSE COMMITS
 
-  const majorChanges = []
-  const minorChanges = []
-  const patchChanges = []
-  for (const commit of commits) {
-    try {
-      const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
-      if (bumpTypes.major.includes(cAst.type)) {
-        majorChanges.push(commit.commit.message)
-        core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`)
-      } else if (bumpTypes.minor.includes(cAst.type)) {
-        minorChanges.push(commit.commit.message)
-        core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`)
-      } else if (bumpTypes.patchAll || bumpTypes.patch.includes(cAst.type)) {
-        patchChanges.push(commit.commit.message)
-        core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`)
-      } else {
-        core.info(`[SKIP] Commit ${commit.sha} of type ${cAst.type} will not cause any version bump.`)
-      }
-      for (const note of cAst.notes) {
-        if (note.title === 'BREAKING CHANGE') {
+  let bump = null
+  if (!bumpTypes.patchAll) {
+    const majorChanges = []
+    const minorChanges = []
+    const patchChanges = []
+    for (const commit of commits) {
+      try {
+        const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
+        if (bumpTypes.major.includes(cAst.type)) {
           majorChanges.push(commit.commit.message)
-          core.info(`[MAJOR] Commit ${commit.sha} has a BREAKING CHANGE mention, causing a major version bump.`)
+          core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`)
+        } else if (bumpTypes.minor.includes(cAst.type)) {
+          minorChanges.push(commit.commit.message)
+          core.info(`[MINOR] Commit ${commit.sha} of type ${cAst.type} will cause a minor version bump.`)
+        } else if (bumpTypes.patch.includes(cAst.type)) {
+          patchChanges.push(commit.commit.message)
+          core.info(`[PATCH] Commit ${commit.sha} of type ${cAst.type} will cause a patch version bump.`)
+        } else {
+          core.info(`[SKIP] Commit ${commit.sha} of type ${cAst.type} will not cause any version bump.`)
+        }
+        for (const note of cAst.notes) {
+          if (note.title === 'BREAKING CHANGE') {
+            majorChanges.push(commit.commit.message)
+            core.info(`[MAJOR] Commit ${commit.sha} has a BREAKING CHANGE mention, causing a major version bump.`)
+          }
+        }
+      } catch (err) {
+        core.info(`[INVALID] Skipping commit ${commit.sha} as it doesn't follow conventional commit format.`)
+      }
+    }
+    
+    if (majorChanges.length > 0) {
+      bump = 'major'
+    } else if (minorChanges.length > 0) {
+      bump = 'minor'
+    } else if (patchChanges.length > 0) {
+      bump = 'patch'
+    } else {
+      switch (noVersionBumpBehavior) {
+        case 'current': {
+          core.info('No commit resulted in a version bump since last release! Exiting with current as next version...')
+          outputVersion(semver.clean(latestTag.name))
+          return
+        }
+        case 'patch': {
+          core.info('No commit resulted in a version bump since last release! Defaulting to using PATCH...')
+          bump = 'patch'
+          break
+        }
+        case 'silent': {
+          return core.info('No commit resulted in a version bump since last release! Exiting silently...')
+        }
+        case 'warn': {
+          return core.warning('No commit resulted in a version bump since last release!')
+        }
+        default: {
+          return core.setFailed('No commit resulted in a version bump since last release!')
         }
       }
-    } catch (err) {
-      core.info(`[INVALID] Skipping commit ${commit.sha} as it doesn't follow conventional commit format.`)
     }
+  } else {
+    bump = 'patch'
+    core.info('patchAll is set to true, all commits will be considered for a patch version bump.')
   }
 
-  let bump = null
-  if (majorChanges.length > 0) {
-    bump = 'major'
-  } else if (minorChanges.length > 0) {
-    bump = 'minor'
-  } else if (patchChanges.length > 0) {
-    bump = 'patch'
-  } else {
-    switch (noVersionBumpBehavior) {
-      case 'current': {
-        core.info('No commit resulted in a version bump since last release! Exiting with current as next version...')
-        outputVersion(semver.clean(latestTag.name))
-        return
-      }
-      case 'patch': {
-        core.info('No commit resulted in a version bump since last release! Defaulting to using PATCH...')
-        bump = 'patch'
-        break
-      }
-      case 'silent': {
-        return core.info('No commit resulted in a version bump since last release! Exiting silently...')
-      }
-      case 'warn': {
-        return core.warning('No commit resulted in a version bump since last release!')
-      }
-      default: {
-        return core.setFailed('No commit resulted in a version bump since last release!')
-      }
-    }
-  }
   core.info(`\n>>> Will bump version ${prefix}${latestTag.name} using ${bump.toUpperCase()}\n`)
   core.setOutput('bump', bump || 'none')
 
