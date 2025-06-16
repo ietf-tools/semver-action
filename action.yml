@@ -48,8 +48,12 @@ inputs:
     description: Whether to exit with an error, warning or silently when none of the commits result in a version bump. (error, warn, current, patch, silent)
     required: false
     default: error
+  noOutputPrefix:
+    description: If set to true, the prefix will not be added to the output values.
+    required: false
+    default: 'false'
   prefix:
-    description: A prefix that will be striped when parsing tags (e.g. `foobar/`). Any other prefix will be ignored. The prefix will be added back to the output values.
+    description: A prefix that will be striped when parsing tags (e.g. `foobar/`). Any other prefix will be ignored. The prefix will be added back to the output values unless `noOutputPrefix` is set to true.
     required: false
     default: ''
   skipInvalidTags:

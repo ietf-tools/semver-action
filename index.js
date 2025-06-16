@@ -13,6 +13,7 @@ async function main () {
   const skipInvalidTags = core.getBooleanInput('skipInvalidTags')
   const noVersionBumpBehavior = core.getInput('noVersionBumpBehavior')
   const noNewCommitBehavior = core.getInput('noNewCommitBehavior')
+  const noOutputPrefix = core.getBooleanInput('noOutputPrefix')
   const prefix = core.getInput('prefix') || ''
   const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
   const fromTag = core.getInput('fromTag')
@@ -28,14 +29,30 @@ async function main () {
     patchAll: (core.getInput('patchAll') === true || core.getInput('patchAll') === 'true')
   }
 
-  function outputVersion (version) {
-    core.exportVariable('next', `${prefix}v${version}`)
-    core.exportVariable('nextStrict', `${prefix}${version}`)
+  function exportVariable (name, value) {
+    if (noOutputPrefix) {
+      core.exportVariable(name, value)
+      return
+    }
+    core.exportVariable(`${prefix}${name}`, value)
+  }
 
-    core.setOutput('next', `${prefix}v${version}`)
-    core.setOutput('nextStrict', `${prefix}${version}`)
-    core.setOutput('nextMajor', `${prefix}v${semver.major(version)}`)
-    core.setOutput('nextMajorStrict', `${prefix}${semver.major(version)}`)
+  function setOutput(name, value) {
+    if (noOutputPrefix) {
+      core.setOutput(name, value)
+      return
+    }
+    core.setOutput(`${prefix}${name}`, value)
+  }
+
+  function outputVersion (version) {
+    exportVariable('next', `v${version}`)
+    exportVariable('nextStrict', version)
+    
+    setOutput('next', `v${version}`)
+    setOutput('nextStrict', version)
+    setOutput('nextMajor', `v${semver.major(version)}`)
+    setOutput('nextMajorStrict', semver.major(version))
   }
 
   let latestTag = null
@@ -164,8 +181,13 @@ async function main () {
 
   // OUTPUT CURRENT VARS
 
-  core.exportVariable('current', `${prefix}${latestTag.name}`)
-  core.setOutput('current', `${prefix}${latestTag.name}`)
+  if (noOutputPrefix) {
+    core.info(`noOutputPrefix is set to true, skipping prefixing of output variables`)
+  }
+
+  exportVariable('current', latestTag.name)
+  setOutput('current', latestTag.name)
+
 
   // GET COMMITS
 
