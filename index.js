@@ -257,7 +257,7 @@ async function main () {
       case 'current': {
         core.info('No commit resulted in a version bump since last release! Exiting with current as next version...')
         outputVersion(semver.clean(latestTag.name))
-        return
+        break
       }
       case 'patch': {
         core.info('No commit resulted in a version bump since last release! Defaulting to using PATCH...')
@@ -265,18 +265,26 @@ async function main () {
         break
       }
       case 'silent': {
-        return core.info('No commit resulted in a version bump since last release! Exiting silently...')
+        core.info('No commit resulted in a version bump since last release! Exiting silently...')
+        break
       }
       case 'warn': {
-        return core.warning('No commit resulted in a version bump since last release!')
+        core.warning('No commit resulted in a version bump since last release!')
+        break
       }
       default: {
-        return core.setFailed('No commit resulted in a version bump since last release!')
+        core.setFailed('No commit resulted in a version bump since last release!')
+        break
       }
     }
   }
-  core.info(`\n>>> Will bump version ${prefix}${latestTag.name} using ${bump.toUpperCase()}\n`)
+
   core.setOutput('bump', bump || 'none')
+  if (!bump) {
+    return
+  }
+
+  core.info(`\n>>> Will bump version ${prefix}${latestTag.name} using ${bump.toUpperCase()}\n`)
 
   // BUMP VERSION
 
