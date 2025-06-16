@@ -29,7 +29,7 @@ inputs:
     description: A list of additional commit messages to parse in order to calculate semver.
     required: false
   fallbackTag:
-    description: Fallback tag to use if no latest tag is found.
+    description: Fallback tag to use if no latest tag is found. The fallback tag must exist already.
     required: false
     default: ''
   fromTag:

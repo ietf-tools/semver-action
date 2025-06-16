@@ -63,7 +63,7 @@ jobs:
 | `patchList` | Comma separated commit prefixes, used to bump Patch version. | :x: | `fix, bugfix, perf, refactor, test, tests` |
 | `patchAll` | If set to `true`, will ignore `patchList` and always count commits as a Patch. | :x: | `false` |
 | `additionalCommits` | A list of additional commit messages to parse in order to calculate semver. | :x: |  |
-| `fallbackTag` | A fallback tag to use if no valid latest tag can be found. | :x: |  |
+| `fallbackTag` | A fallback tag to use if no valid latest tag can be found. The fallback tag must exist already. | :x: |  |
 | `fromTag` | Override the tag to use when comparing against the branch in order to fetch the list of commits. | :x: |  |
 | `maxTagsToFetch` | Maximum number of tags to fetch from latest (between `1` and `100`). | :x: | `10` |
 | `noNewCommitBehavior` | Whether to exit with an error *(default)*, a warning, the current version or silently when there are no new commits since the latest tag. (Possible values: `error`, `warn`, `current` or `silent`) | :x: | `error` |
