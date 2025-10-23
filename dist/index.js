@@ -52965,6 +52965,10 @@ async function main () {
   const fallbackTag = core.getInput('fallbackTag')
   const tagFilter = core.getInput('tagFilter')
 
+  // NEW: read scopeFilter input (comma-separated list of scopes). Empty = no filtering
+  const scopeFilterRaw = core.getInput('scopeFilter') || ''
+  const scopeFilter = scopeFilterRaw.split(',').map(s => s.trim()).filter(s => s !== '')
+
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
     minor: core.getInput('minorList').split(',').map(p => p.trim()).filter(p => p),
@@ -53166,6 +53170,16 @@ async function main () {
   for (const commit of commits) {
     try {
       const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
+
+      // If scopeFilter is set, only consider commits whose parsed scope matches one of the requested scopes
+      if (scopeFilter && scopeFilter.length > 0) {
+        const commitScope = (cAst.scope || '').toString()
+        if (!scopeFilter.includes(commitScope)) {
+          core.info(`[SKIP] Commit ${commit.sha} has scope '${commitScope || '<none>'}' which does not match scopeFilter='${scopeFilter.join(',')}'`)
+          continue
+        }
+      }
+
       if (bumpTypes.major.includes(cAst.type)) {
         majorChanges.push(commit.commit.message)
         core.info(`[MAJOR] Commit ${commit.sha} of type ${cAst.type} will cause a major version bump.`)

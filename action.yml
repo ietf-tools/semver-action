@@ -60,6 +60,10 @@ inputs:
     description: If defined, only tags matching the regex pattern will be included (e.g. `^[a-f0-9.]+$`). Use a negative lookahead match to exclude tags (e.g. `^(?!abcd).*$`). When used in conjunction with the prefix option, the prefix is striped first, then the filter is applied.
     required: false
     default: ''
+  scopeFilter:
+    description: "Comma-separated list of scopes to include. When set, only commits whose conventional-commit scope matches one of these values will be considered. Leave empty to consider all scopes."
+    required: false
+    default: ''
 outputs:
   current:
     description: Current version number / latest tag.
