@@ -71,6 +71,7 @@ jobs:
 | `prefix` | A prefix that will be striped when parsing tags (e.g. `foobar/`). Any other prefix will be ignored. Useful for monorepos. The prefix will be added back to the output values. | :x: |  |
 | `skipInvalidTags` | If set to `true`, will skip tags that are not valid semver until it finds a proper one (up to `maxTagsFetch` from latest). | :x: | `false` |
 | `tagFilter` | If defined, only tags matching the regex pattern will be included (e.g. `^[a-f0-9.]+$`). Use a negative lookahead match to exclude tags (e.g. `^(?!abcd).*$`). When used in conjunction with the prefix option, the prefix is striped first, then the filter is applied. | :x: |  |
+| `scopeFilter` | Comma-separated list of scopes to include. When set, only commits whose conventional-commit scope matches one of these values will be considered. Leave empty to consider all scopes. Useful for monorepos. | :x: |  |
 
 ## Outputs
 
@@ -82,6 +83,27 @@ jobs:
 | `nextMajor`       | Next version major number in format `v0`                    | `v1`          |
 | `nextMajorStrict` | Next version major number only.                             | `1`           |
 | `bump`            | Next version behavior: `major`, `minor`, `patch` or `none`. | `minor`       |
+
+## Using scopeFilter for Monorepos
+
+If you set `scopeFilter` to a comma-separated list of scopes (for example `cli,api`) the action will only consider commits with those scopes when calculating the next version. This is useful in monorepos where you want to run per-package releases.
+
+Example:
+
+```yaml
+uses: ietf-tools/semver-action@v1
+with:
+  token: ${{ secrets.GITHUB_TOKEN }}
+  branch: main
+  prefix: 'cli-v'
+  minorList: feat
+  patchList: fix
+  scopeFilter: cli
+```
+
+**Notes:**
+- `scopeFilter` does an exact match against the parsed conventional-commit scope (after trimming). A commit without a scope is treated as an empty scope.
+- If `scopeFilter` is empty (default), behavior is unchanged and all commits are considered.
 
 ## :warning: Important :warning:
 
