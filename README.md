@@ -13,44 +13,15 @@
 
 This GitHub Action automatically determinate the next release version to use based on all the [Conventional Commits](https://www.conventionalcommits.org) since the latest tag.
 
-- [Example Workflow](#example-workflow)
 - [Inputs](#inputs)
 - [Outputs](#outputs)
+- [Examples](#examples)
 
+> [!TIP]
 > Works great alongside the [Changelog from Conventional Commits](https://github.com/marketplace/actions/changelog-from-conventional-commits) action!
 
-## Example workflow
-``` yaml
-name: Deploy
-
-on:
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Get Next Version
-        id: semver
-        uses: ietf-tools/semver-action@v1
-        with:
-          token: ${{ github.token }}
-          branch: main
-
-      - name: Create Release
-        uses: ncipollo/release-action@v1.12.0
-        with:
-          allowUpdates: true
-          draft: false
-          makeLatest: true
-          name: ${{ steps.semver.outputs.next }}
-          body: Changelog Contents
-          token: ${{ github.token }}
-```
+> [!WARNING]
+> If no valid latest tag is found and no `fallbackTag` is provided, the job will exit with an error. If using this action in a new repo without any existing tag, you should manually create the first tag (e.g. on the initial commit) that the action will compare against. Otherwise, you can use the `fallbackTag` option to specify a default tag value (e.g. `0.0.0`).
 
 ## Inputs
 
@@ -62,6 +33,7 @@ jobs:
 | `minorList` | Comma separated commit prefixes, used to bump Minor version. | :x: | `feat, feature` |
 | `patchList` | Comma separated commit prefixes, used to bump Patch version. | :x: | `fix, bugfix, perf, refactor, test, tests` |
 | `patchAll` | If set to `true`, will ignore `patchList` and always count commits as a Patch. | :x: | `false` |
+| `scopeList` | Comma-separated list of scopes to include. When set, only commits whose conventional-commit scope matches one of these values will be considered. Leave empty to consider all scopes. Useful for monorepos. | :x: |  |
 | `additionalCommits` | A list of additional commit messages to parse in order to calculate semver. | :x: |  |
 | `fallbackTag` | A fallback tag to use if no valid latest tag can be found. The fallback tag must exist already. | :x: |  |
 | `fromTag` | Override the tag to use when comparing against the branch in order to fetch the list of commits. | :x: |  |
@@ -83,6 +55,53 @@ jobs:
 | `nextMajorStrict` | Next version major number only.                             | `1`           |
 | `bump`            | Next version behavior: `major`, `minor`, `patch` or `none`. | `minor`       |
 
-## :warning: Important :warning:
+## Examples
 
-If no valid latest tag is found and no `fallbackTag` is provided, the job will exit with an error. To avoid this, you can use the `fallbackTag` option to specify a default tag value (e.g. `0.0.0`).
+### Full Basic Workflow with Release
+
+``` yaml
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Get Next Version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: main
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.20.0
+        with:
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          name: ${{ steps.semver.outputs.next }}
+          body: Changelog Contents
+          token: ${{ github.token }}
+```
+
+### Monorepo with prefix and scope
+
+In this example, only commits with the scope `foobar`, starting from the latest tag having the prefix `foobar/` will be considered:
+
+``` yaml
+      - name: Get Next Version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: main
+          prefix: foobar/
+          scopeList: foobar
+```
