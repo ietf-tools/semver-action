@@ -20,10 +20,7 @@ async function main () {
   const fetchLimit = (maxTagsToFetch < 1 || maxTagsToFetch > 100) ? 10 : maxTagsToFetch
   const fallbackTag = core.getInput('fallbackTag')
   const tagFilter = core.getInput('tagFilter')
-
-  // NEW: read scopeFilter input (comma-separated list of scopes). Empty = no filtering
-  const scopeFilterRaw = core.getInput('scopeFilter') || ''
-  const scopeFilter = scopeFilterRaw.split(',').map(s => s.trim()).filter(s => s !== '')
+  const scopeList = core.getInput('scopeList').split(',').map(s => s.trim()).filter(s => s !== '')
 
   const bumpTypes = {
     major: core.getInput('majorList').split(',').map(p => p.trim()).filter(p => p),
@@ -202,18 +199,18 @@ async function main () {
   if (!commits || commits.length < 1) {
     switch (noNewCommitBehavior) {
       case 'current': {
-        core.info(`Couldn't find any commits between branch HEAD and latest tag. Exiting with current as next version...`)
+        core.info('Couldn\'t find any commits between branch HEAD and latest tag. Exiting with current as next version...')
         outputVersion(semver.clean(latestTag.name))
         return
       }
       case 'silent': {
-        return core.info(`Couldn't find any commits between branch HEAD and latest tag. Exiting silently...`)
+        return core.info('Couldn\'t find any commits between branch HEAD and latest tag. Exiting silently...')
       }
       case 'warn': {
-        return core.warning(`Couldn't find any commits between branch HEAD and latest tag.`)
+        return core.warning('Couldn\'t find any commits between branch HEAD and latest tag.')
       }
       default: {
-        return core.setFailed(`Couldn't find any commits between branch HEAD and latest tag.`)
+        return core.setFailed('Couldn\'t find any commits between branch HEAD and latest tag.')
       }
     }
   }
@@ -227,11 +224,15 @@ async function main () {
     try {
       const cAst = cc.toConventionalChangelogFormat(cc.parser(commit.commit.message))
 
-      // If scopeFilter is set, only consider commits whose parsed scope matches one of the requested scopes
-      if (scopeFilter && scopeFilter.length > 0) {
+      if (scopeList && scopeList.length > 0) {
         const commitScope = (cAst.scope || '').toString()
-        if (!scopeFilter.includes(commitScope)) {
-          core.info(`[SKIP] Commit ${commit.sha} has scope '${commitScope || '<none>'}' which does not match scopeFilter='${scopeFilter.join(',')}'`)
+        if (commitScope.length > 0) {
+          if (!scopeList.includes(commitScope)) {
+            core.info(`[SKIP] Commit ${commit.sha} has scope '${commitScope}', which does not match allowed scopes: ${scopeList.join(', ')}.`)
+            continue
+          }
+        } else {
+          core.info(`[SKIP] Commit ${commit.sha} has no scope and will be excluded as scopeList is defined.`)
           continue
         }
       }
