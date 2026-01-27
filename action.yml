@@ -20,7 +20,7 @@ inputs:
   patchList:
     description: Comma-separated commit prefixes, used to bump Patch version
     required: false
-    default: fix, bugfix, perf, refactor, test, tests
+    default: fix, bugfix, chore, perf, refactor, test, tests
   patchAll:
     description: If set to true, will ignore patchList and count any commit as a Patch
     required: false
