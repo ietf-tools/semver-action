@@ -46,14 +46,18 @@ This GitHub Action automatically determinate the next release version to use bas
 
 ## Outputs
 
-| Field             | Description                                                 | Example Value |
-|-------------------|-------------------------------------------------------------|---------------|
-| `current`         | Current version number / latest tag.                        | `v1.1.9`      |
-| `next`            | Next version number in format `v0.0.0`                      | `v1.2.0`      |
-| `nextStrict`      | Next version number without the `v` prefix.                 | `1.2.0`       |
-| `nextMajor`       | Next version major number in format `v0`                    | `v1`          |
-| `nextMajorStrict` | Next version major number only.                             | `1`           |
-| `bump`            | Next version behavior: `major`, `minor`, `patch` or `none`. | `minor`       |
+| Field                | Description                                                       | Example Value |
+|----------------------|-------------------------------------------------------------------|---------------|
+| `current`            | Current version number / latest tag.                              | `v1.1.9`      |
+| `next`               | Next version number in format `v0.0.0`                            | `v1.2.0`      |
+| `nextStrict`         | Next version number without the `v` prefix.                       | `1.2.0`       |
+| `nextMinor`          | Next version major + minor number in format `v0.0`                | `v1.2`        |
+| `nextMinorStrict`    | Next version major + minor number only.                           | `1.2`         |
+| `nextMajor`          | Next version major number in format `v0`                          | `v1`          |
+| `nextMajorStrict`    | Next version major number only.                                   | `1`           |
+| `nextNoPrefix`       | Next version number in format `v0.0.0` without any custom prefix. | `v1.2.0`      |
+| `nextStrictNoPrefix` | Next version number without the `v` prefix or any custom prefix.  | `1.2.0`       |
+| `bump`               | Next version behavior: `major`, `minor`, `patch` or `none`.       | `minor`       |
 
 ## Examples
 
@@ -71,7 +75,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Get Next Version
         id: semver
@@ -81,7 +85,7 @@ jobs:
           branch: main
 
       - name: Create Release
-        uses: ncipollo/release-action@v1.20.0
+        uses: ncipollo/release-action@v1.21.0
         with:
           allowUpdates: true
           draft: false

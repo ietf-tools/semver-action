@@ -34,7 +34,11 @@ async function main () {
     core.exportVariable('nextStrict', `${prefix}${version}`)
 
     core.setOutput('next', `${prefix}v${version}`)
+    core.setOutput('nextNoPrefix', `v${version}`)
     core.setOutput('nextStrict', `${prefix}${version}`)
+    core.setOutput('nextStrictNoPrefix', `${version}`)
+    core.setOutput('nextMinor', `${prefix}v${semver.major(version)}.${semver.minor(version)}`)
+    core.setOutput('nextMinorStrict', `${prefix}${semver.major(version)}.${semver.minor(version)}`)
     core.setOutput('nextMajor', `${prefix}v${semver.major(version)}`)
     core.setOutput('nextMajorStrict', `${prefix}${semver.major(version)}`)
   }

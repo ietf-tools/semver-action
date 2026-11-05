@@ -71,10 +71,18 @@ outputs:
     description: Next version number in format v0.0.0
   nextStrict:
     description: Next version number without the v prefix.
+  nextMinor:
+    description: Next version minor number in format v0.0
+  nextMinorStrict:
+    description: Next version minor number only.
   nextMajor:
     description: Next version major number in format v0
   nextMajorStrict:
     description: Next version major number only.
+  nextNoPrefix:
+    description: Next version number in format v0.0.0, without any custom prefix.
+  nextStrictNoPrefix:
+    description: Next version number without the v prefix and any custom prefix.
   bump:
     description: Next version behavior.
 runs:
