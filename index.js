@@ -17,7 +17,7 @@ async function main () {
   const additionalCommits = core.getInput('additionalCommits').split('\n').map(l => l.trim()).filter(l => l !== '')
   const fromTag = core.getInput('fromTag')
   const maxTagsToFetch = _.toSafeInteger(core.getInput('maxTagsToFetch') || 10)
-  const fetchLimit = (maxTagsToFetch < 1 || maxTagsToFetch > 100) ? 10 : maxTagsToFetch
+  const fetchLimit = maxTagsToFetch < 1 ? 10 : maxTagsToFetch
   const fallbackTag = core.getInput('fallbackTag')
   const tagFilter = core.getInput('tagFilter')
   const scopeList = core.getInput('scopeList').split(',').map(s => s.trim()).filter(s => s !== '')
@@ -46,40 +46,60 @@ async function main () {
   let latestTag = null
 
   if (!fromTag) {
-    // GET LATEST + PREVIOUS TAGS
+    // GET LATEST + PREVIOUS TAGS (with pagination for >100 tags)
 
-    const tagsRaw = await gh.graphql(`
-      query lastTags (
-        $owner: String!
-        $repo: String!
-        $fetchLimit: Int
-        ) {
-        repository (
-          owner: $owner
-          name: $repo
+    const tagsList = []
+    let cursor = null
+    let hasNextPage = true
+
+    while (hasNextPage && tagsList.length < fetchLimit) {
+      const batchSize = Math.min(100, fetchLimit - tagsList.length)
+
+      const tagsRaw = await gh.graphql(`
+        query lastTags (
+          $owner: String!
+          $repo: String!
+          $batchSize: Int
+          $cursor: String
           ) {
-          refs(
-            first: $fetchLimit
-            refPrefix: "refs/tags/"
-            orderBy: { field: TAG_COMMIT_DATE, direction: DESC }
+          repository (
+            owner: $owner
+            name: $repo
             ) {
-            nodes {
-              name
-              target {
-                oid
+            refs(
+              first: $batchSize
+              after: $cursor
+              refPrefix: "refs/tags/"
+              orderBy: { field: TAG_COMMIT_DATE, direction: DESC }
+              ) {
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+              nodes {
+                name
+                target {
+                  oid
+                }
               }
             }
           }
         }
-      }
-    `,
-    {
-      owner,
-      repo,
-      fetchLimit
-    })
+      `,
+      {
+        owner,
+        repo,
+        batchSize,
+        cursor
+      })
 
-    const tagsList = _.get(tagsRaw, 'repository.refs.nodes', [])
+      const batchNodes = _.get(tagsRaw, 'repository.refs.nodes', [])
+      tagsList.push(...batchNodes)
+
+      const pageInfo = _.get(tagsRaw, 'repository.refs.pageInfo', {})
+      hasNextPage = pageInfo.hasNextPage || false
+      cursor = pageInfo.endCursor
+    }
     if (tagsList.length < 1) {
       if (fallbackTag && semver.valid(fallbackTag)) {
         core.info(`Using fallback tag: ${fallbackTag}`)
